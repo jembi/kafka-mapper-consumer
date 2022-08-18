@@ -1,6 +1,7 @@
 {
   "name": "kafka-mapper-consumer",
   "version": "0.0.1",
+  "license": "MIT",
   "main": "index.js",
   "dependencies": {
     "kafkajs": "2.0.2"
@@ -11,6 +12,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "build": "npx tsc && docker build -t jembi/kafka-mapper-consumer ."
+    "build": "tsc",
+    "build:docker": "yarn build && docker build -t jembi/kafka-mapper-consumer ."
   }
 }
