@@ -1,5 +1,19 @@
 import { Kafka, logLevel } from "kafkajs";
+import Fhirpath from "fhirpath";
+import fhirMapping from "./fhir-mapping.json"; 
 
+interface Entry {
+  resource: Resource;
+}
+
+interface Resource {
+  resourceType: string;
+  id: string;
+}
+
+interface ResourceMap {
+  [key: string]: any;
+}
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
 
@@ -13,12 +27,36 @@ const consumer = kafka.consumer({ groupId: "kafka-mapper-consumer" });
 const producer = kafka.producer();
 
 const run = async () => {
-  const topics = ["resource"];
+  let topics: string[] = []; 
+  fhirMapping.map((resource => {
+    topics.push(resource.resource.toLowerCase())
+  }))
+
   await consumer.connect();
   await producer.connect();
-  await consumer.subscribe({ topics, fromBeginning: true });
-  //TODO: TO BE IMPLEMENTED
-  //await consumer.run();
+  await consumer.subscribe({ topics, fromBeginning: true }); 
+
+  await consumer.run({
+    eachMessage: async ({topic, partition, message}) => {
+      const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+      console.log(`- ${prefix} ${message.key}#${message.value}`);
+
+      const resourceObject: Entry = JSON.parse(message.value?.toString() ?? "")
+        
+      fhirMapping?.map((resource => {
+      let tempObject: ResourceMap = {} 
+        if(resource.resource === topic){ 
+          resource.tableMappings?.map((mapping)=>{ 
+            mapping.columnMappings.map((column) => {
+              tempObject[column.columnName] = Fhirpath.evaluate(resourceObject,`${column.fhirPath}`) 
+            })
+          })  
+        }
+        //send to kafka or to clickhouse
+      }))
+
+    }
+  });
 };
 
 run().catch((e: Error) => console.error(`[kafka-mapper-consumer] ${e.message}`, e));

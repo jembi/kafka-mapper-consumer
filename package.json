@@ -1,16 +1,19 @@
 {
   "name": "kafka-mapper-consumer",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "index.ts",
   "dependencies": {
-    "kafkajs": "2.0.2"
+    "fhirpath": "^2.14.6",
+    "kafkajs": "2.0.2",
+    "nodemon": "^2.0.19",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/node": "18.7.6",
     "typescript": "4.7.4"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon index.ts",
     "build": "npx tsc && docker build -t jembi/kafka-mapper-consumer ."
   }
 }
