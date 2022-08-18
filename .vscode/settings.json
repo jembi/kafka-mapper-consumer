@@ -1,0 +1,20 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    "node_modules": true,
+  },
+  "editor.formatOnSave": true,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["fhir-mapping.json"],
+      "url": "./schemas/fhir-mapping.json"
+    }
+  ],
+}
