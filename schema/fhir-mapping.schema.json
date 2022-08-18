@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "string",
+          "description": "The FHIR Resource from which to map table columns \nhttps://www.hl7.org/fhir/resourcelist.html"
+        },
+        "tableMappings": {
+          "type": "array",
+          "description": "A list of mapping rules to execute for a resource type",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "targetTable": {
+                  "type": "string",
+                  "description": "The table in the database that this resource should map to"
+                },
+                "filter": {
+                  "type": "string",
+                  "description": "A fhir path expression that resolves to a boolean for filtering out certain resources"
+                },
+                "columnMappings": {
+                  "type": "array",
+                  "description": "A list of fhir path mappings to a column name",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "fhirPath": {
+                          "type": "string",
+                          "description": "The FHIR Path to use for the mapping \nhttp://hl7.org/fhirpath/N1/"
+                        },
+                        "columnName": {
+                          "type": "string",
+                          "description": "The name of the column that this should map to"
+                        }
+                      },
+                      "required": ["fhirPath", "columnName"]
+                    }
+                  ]
+                },
+                "plugin": {
+                  "type": "string",
+                  "description": "A module file to load and execute for advanced processing, results are appended to the mappings above"
+                }
+              },
+              "required": ["targetTable", "columnMappings"]
+            }
+          ]
+        }
+      },
+      "required": ["resource", "tableMappings"]
+    }
+  ]
+}

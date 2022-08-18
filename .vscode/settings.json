@@ -14,7 +14,7 @@
   "json.schemas": [
     {
       "fileMatch": ["fhir-mapping.json"],
-      "url": "./schemas/fhir-mapping.json"
+      "url": "./schema/fhir-mapping.schema.json"
     }
   ],
 }
