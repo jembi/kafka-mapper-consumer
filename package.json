@@ -11,6 +11,6 @@
   },
   "scripts": {
     "start": "node index.js",
-    "build": "npx tsc && docker build -t kafka-mapper-consumer ."
+    "build": "npx tsc && docker build -t jembi/kafka-mapper-consumer ."
   }
 }
