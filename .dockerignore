@@ -1,2 +1,20 @@
-node_modules
-index.ts
+# vscode config
+.vscode
+
+# Dependency directories
+node_modules/
+
+# Dockerfiles
+Dockerfile
+
+.github/
+.gitignore
+.git
+
+README.md
+
+# Schema
+schema
+
+# Source
+src/
