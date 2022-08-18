@@ -5,7 +5,7 @@
     {
       "type": "object",
       "properties": {
-        "resource": {
+        "resourceType": {
           "type": "string",
           "description": "The FHIR Resource from which to map table columns \nhttps://www.hl7.org/fhir/resourcelist.html"
         },
@@ -54,7 +54,7 @@
           ]
         }
       },
-      "required": ["resource", "tableMappings"]
+      "required": ["resourceType", "tableMappings"]
     }
   ]
 }

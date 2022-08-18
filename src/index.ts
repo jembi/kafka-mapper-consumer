@@ -1,4 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
+import fhirpath from "fhirpath";
+import { Entry, FhirMapping, LooseObject } from "./types";
 
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
@@ -13,12 +15,40 @@ const consumer = kafka.consumer({ groupId: "kafka-mapper-consumer" });
 const producer = kafka.producer();
 
 const run = async () => {
-  const topics = ["resource"];
+  const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
+  const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
+
   await consumer.connect();
   await producer.connect();
   await consumer.subscribe({ topics, fromBeginning: true });
-  //TODO: TO BE IMPLEMENTED
-  //await consumer.run();
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+      console.log(`- ${prefix} ${message.key}#${message.value}`);
+
+      const entry: Entry = JSON.parse(message.value?.toString() ?? "");
+
+      const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
+      fhirMapping?.tableMappings.forEach((tableMapping) => {
+        const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
+        tableMapping.columnMappings.forEach((columnMapping) => {
+          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
+        });
+
+        producer
+          .send({
+            topic: tableMapping.targetTable,
+            messages: [
+              {
+                value: JSON.stringify(row),
+              },
+            ],
+          })
+          .catch((e: Error) => console.error(`[kafka-unbundler-consumer] ${e.message}`, e));
+      });
+    },
+  });
 };
 
 run().catch((e: Error) => console.error(`[kafka-mapper-consumer] ${e.message}`, e));

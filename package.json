@@ -4,6 +4,7 @@
   "license": "MIT",
   "main": "src/index.ts",
   "dependencies": {
+    "fhirpath": "^2.14.6",
     "kafkajs": "2.0.2"
   },
   "devDependencies": {
@@ -12,7 +13,7 @@
   },
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc",
+    "build": "rm -r dist && tsc",
     "build:docker": "yarn build && docker build -t jembi/kafka-mapper-consumer ."
   }
 }
