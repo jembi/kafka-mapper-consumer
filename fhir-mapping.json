@@ -1,6 +1,6 @@
 [
   {
-    "resource": "Patient",
+    "resourceType": "Patient",
     "tableMappings": [
       {
         "targetTable": "patient",
@@ -22,7 +22,7 @@
     ]
   },
   {
-    "resource": "Observation",
+    "resourceType": "Observation",
     "tableMappings": [
       {
         "targetTable": "obs-viral-load",
