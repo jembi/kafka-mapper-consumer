@@ -35,17 +35,6 @@ const run = async () => {
         tableMapping.columnMappings.forEach((columnMapping) => {
           row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
         });
-
-        producer
-          .send({
-            topic: tableMapping.targetTable,
-            messages: [
-              {
-                value: JSON.stringify(row),
-              },
-            ],
-          })
-          .catch((e: Error) => console.error(`[kafka-unbundler-consumer] ${e.message}`, e));
       });
     },
   });
