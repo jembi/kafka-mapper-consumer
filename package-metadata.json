@@ -1,0 +1,13 @@
+{
+    "id": "kafka-mapper-consumer",
+    "name": "Kafka Mapper Consumer",
+    "description": "A kafka processor to map resources into Clickhouse in specific table",
+    "type": "infrastructure",
+    "version": "0.0.1",
+    "dependencies": ["kafka-unbundler-consumer"],
+    "environmentVariables": {
+      "KAFKA_HOST": "kafka",
+      "KAFKA_PORT": "9092"
+    }
+  }
+  

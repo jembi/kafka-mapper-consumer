@@ -13,7 +13,7 @@
     "nodemon": "^2.0.19"
   },
   "scripts": {
-    "start": "nodemon index.ts",
-    "build": "npx tsc && docker build -t jembi/kafka-mapper-consumer ."
+    "start": "ts-node src/index.ts",
+    "build": "docker build -t jembi/kafka-mapper-consumer ."
   }
 }

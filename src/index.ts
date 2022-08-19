@@ -1,6 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
 import Fhirpath from "fhirpath";
-import fhirMappings from "./fhir-mapping.json"; 
+import fhirMappings from "../fhir-mapping.json"; 
 
 interface Entry {
   resource: Resource;
@@ -13,6 +13,12 @@ interface Resource {
 
 interface ResourceMap {
   [key: string]: any;
+}
+
+interface TableMappingProperties{
+  targetTable: string, 
+  filter?: string,
+  columnMappings: []
 }
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
@@ -42,12 +48,13 @@ const run = async () => {
       console.log(`- ${prefix} ${message.key}#${message.value}`);
 
       const resourceObject: Entry = JSON.parse(message.value?.toString() ?? "")
-      const fhirMapping = fhirMappings.find((mapping) => mapping.resourceType === topic); 
-    
+      const fhirMapping = fhirMappings.find((mapping) => mapping.resourceType.toLowerCase() === topic); 
       let tempObject: ResourceMap = {}         
       fhirMapping?.tableMappings.map((tableMapping)=>{ 
+               
         tableMapping.columnMappings.map((column) => {
           tempObject[column.columnName] = Fhirpath.evaluate(resourceObject,`${column.fhirPath}`) 
+
         })
       })  
         
