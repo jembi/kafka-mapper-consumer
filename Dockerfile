@@ -1,10 +1,10 @@
-FROM node:alpine
+FROM node:gallium-bullseye-slim AS base
 ENV NODE_ENV=production
 
 WORKDIR /app
 
 COPY . .
 
-RUN yarn install --frozen-lockfile
+RUN yarn --production --frozen-lockfile
 
-CMD [ "yarn", "start" ]
+ENTRYPOINT [ "yarn", "start" ]
