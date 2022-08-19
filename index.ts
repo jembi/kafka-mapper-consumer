@@ -1,6 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
 import Fhirpath from "fhirpath";
-import fhirMapping from "./fhir-mapping.json"; 
+import fhirMappings from "./fhir-mapping.json"; 
 
 interface Entry {
   resource: Resource;
@@ -28,8 +28,8 @@ const producer = kafka.producer();
 
 const run = async () => {
   let topics: string[] = []; 
-  fhirMapping.map((resource => {
-    topics.push(resource.resource.toLowerCase())
+  fhirMappings.map((resource => {
+    topics.push(resource.resourceType.toLowerCase())
   }))
 
   await consumer.connect();
@@ -42,18 +42,16 @@ const run = async () => {
       console.log(`- ${prefix} ${message.key}#${message.value}`);
 
       const resourceObject: Entry = JSON.parse(message.value?.toString() ?? "")
+      const fhirMapping = fhirMappings.find((mapping) => mapping.resourceType === topic); 
+    
+      let tempObject: ResourceMap = {}         
+      fhirMapping?.tableMappings.map((tableMapping)=>{ 
+        tableMapping.columnMappings.map((column) => {
+          tempObject[column.columnName] = Fhirpath.evaluate(resourceObject,`${column.fhirPath}`) 
+        })
+      })  
         
-      fhirMapping?.map((resource => {
-      let tempObject: ResourceMap = {} 
-        if(resource.resource === topic){ 
-          resource.tableMappings?.map((mapping)=>{ 
-            mapping.columnMappings.map((column) => {
-              tempObject[column.columnName] = Fhirpath.evaluate(resourceObject,`${column.fhirPath}`) 
-            })
-          })  
-        }
         //send to kafka or to clickhouse
-      }))
 
     }
   });
