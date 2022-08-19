@@ -18,7 +18,7 @@
     "ts-mocha": "^10.0.0"
   },
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "ts-node src/index.ts",
     "build": "docker build -t jembi/kafka-mapper-consumer .",
     "test": "ts-mocha -p ./tsconfig.json test/**/*.spec.ts"
   }
