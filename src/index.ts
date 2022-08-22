@@ -1,6 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
-import fhirpath from "fhirpath";
-import { Entry, FhirMapping, LooseObject } from "./types";
+import { Entry, FhirMapping, Table } from "./types";
+import { GetTableMappings } from "./util";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 
@@ -30,15 +30,9 @@ const run = async () => {
 
       const entry: Entry = JSON.parse(message.value?.toString() ?? "");
 
-      const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
-      fhirMapping?.tableMappings.forEach((tableMapping) => {
-        const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
-        tableMapping.columnMappings.forEach((columnMapping) => {
-          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
-        });
-
-        // Logic to post to clickhouse
-      });
+      const tableMappings: Table[] = GetTableMappings(fhirMappings, entry);
+      console.log("🚀tableMappings", tableMappings);
+      // Logic to post to clickhouse
     },
   });
 };
