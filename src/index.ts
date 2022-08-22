@@ -2,6 +2,8 @@ import { Kafka, logLevel } from "kafkajs";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, LooseObject } from "./types";
 
+const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
+
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
 
@@ -15,7 +17,6 @@ const consumer = kafka.consumer({ groupId: "kafka-mapper-consumer" });
 const producer = kafka.producer();
 
 const run = async () => {
-  const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
   const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
 
   await consumer.connect();
@@ -35,6 +36,8 @@ const run = async () => {
         tableMapping.columnMappings.forEach((columnMapping) => {
           row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
         });
+
+        // Logic to post to clickhouse
       });
     },
   });
