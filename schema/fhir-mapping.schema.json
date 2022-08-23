@@ -42,7 +42,8 @@
                       },
                       "required": ["fhirPath", "columnName"]
                     }
-                  ]
+                  ],
+                  "minItems": 1
                 },
                 "plugin": {
                   "type": "string",
@@ -51,10 +52,13 @@
               },
               "required": ["targetTable", "columnMappings"]
             }
-          ]
+          ],
+          "minItems": 1
         }
       },
       "required": ["resourceType", "tableMappings"]
     }
-  ]
+  ],
+  "minItems": 1,
+  "uniqueItems": true
 }
