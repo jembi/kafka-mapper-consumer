@@ -30,7 +30,7 @@ export async function loadDataIntoClickhouse(tableName: string, data: object){
         }
 
     }else{
-        console.error(`We did not find the insert query for table ${tableName}. Please provide one in the db.json file...`)
+        console.error(`We did not find the insert query for table ${tableName}. Please provide one in the tableQueries.json file...`)
     }
     
 }
