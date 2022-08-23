@@ -26,11 +26,11 @@ export async function loadDataIntoClickhouse(tableName: string, data: object){
             console.log(`Successfully added data into ${tableName} table` )
         }
         catch(error: unknown){
-            console.log(`Couldn't insert data into ${tableName} table`)
+            console.error(`Couldn't insert data into ${tableName} table`)
         }
 
     }else{
-        console.log(`We did not find the insert query for table ${tableName}. Please provide one in the db.json file...`)
+        console.error(`We did not find the insert query for table ${tableName}. Please provide one in the db.json file...`)
     }
     
 }

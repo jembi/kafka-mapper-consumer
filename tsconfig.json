@@ -4,8 +4,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true, 
+    "forceConsistentCasingInFileNames": true, 
     "strict": true
   },
   "include": ["./src/**/*"]
