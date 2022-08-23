@@ -1,7 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, LooseObject } from "./types";
-import { loadDataIntoClickHouse, createClickhouseTables } from "./clickhouse/utils";
+import { loadDataIntoClickhouse, createClickhouseTables } from "./clickhouse/utils";
 
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
@@ -40,7 +40,7 @@ const run = async () => {
         if(matchFilter){
             tableMapping.columnMappings.forEach((columnMapping) => {
                 row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
-                loadDataIntoClickHouse(topic, row)
+                loadDataIntoClickhouse(topic, row)
             });
         }
       });

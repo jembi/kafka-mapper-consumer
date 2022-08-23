@@ -1,5 +1,5 @@
 import { ClickHouse } from "clickhouse";
-import db from "./db.json"
+import tableQueries from "./tableQueries.json"
 
 const clickhouse = new ClickHouse({}); 
 
@@ -9,28 +9,28 @@ export async function createClickhouseTables(){
     for(const table of tables){
         try{
             const response = await clickhouse.query(table).toPromise();
-            console.log(`successfully created tables in Clikchouse: ${response}`) 
+            console.log(`Successfully created table in Clikchouse: ${response}`) 
 
-        }catch(_){
-            console.log("Couldn't create tables in Clickhouse")
+        }catch(error: unknown){
+            console.log("Couldn't create table in Clickhouse", error)
         }
       }
 }
 
-export async function loadDataIntoClickHouse(tableName: string, data: object){
-    const resourceDb = db?.find((db) => db.tableName === tableName);
+export async function loadDataIntoClickhouse(tableName: string, data: object){
+    const resourceDb = tableQueries?.find((query) => query.tableName === tableName);
 
     if(resourceDb){
         try{
-            const response =  clickhouse.insert(resourceDb.query, [data])
-            //message
+            const response = clickhouse.insert(resourceDb.query, [data])
+            console.log(`Successfully added data into ${tableName} table` )
         }
-        catch(_){
+        catch(error: unknown){
             console.log(`Couldn't insert data into ${tableName} table`)
         }
 
     }else{
-        console.log(`We did not find the insert query for table ${tableName}. Please, provide one...`)
+        console.log(`We did not find the insert query for table ${tableName}. Please provide one in the db.json file...`)
     }
     
 }
