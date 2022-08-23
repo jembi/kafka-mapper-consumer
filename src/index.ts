@@ -1,8 +1,14 @@
 import { Kafka, logLevel } from "kafkajs";
 import { Entry, FhirMapping, Table } from "./types";
-import { GetTableMappings } from "./util";
+import { GetTableMappings, ValidateFhirMappingsJson } from "./util";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
+const fhirMappingValidationErrors = ValidateFhirMappingsJson(fhirMappings);
+if (fhirMappingValidationErrors.length > 0) {
+  console.error("Invalid fhir-mapping.json file");
+  fhirMappingValidationErrors.forEach((error) => console.error(error));
+  process.exit(1);
+}
 
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
