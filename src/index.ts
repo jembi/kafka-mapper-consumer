@@ -1,10 +1,12 @@
 import { Kafka, logLevel } from "kafkajs";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, LooseObject } from "./types";
+import { loadDataIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 
-const kafkaHost = process.env.KAFKA_HOST || "localhost";
+// TODO: find out if http is required for local testing
+const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
 
 const kafka = new Kafka({
@@ -34,10 +36,10 @@ const run = async () => {
       fhirMapping?.tableMappings.forEach((tableMapping) => {
         const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
         tableMapping.columnMappings.forEach((columnMapping) => {
-          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
+          // TODO: find out what to do with the fhirpath evaulation array "[0]" is a temp solution for testing
+          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
         });
-
-        // Logic to post to clickhouse
+        loadDataIntoClickhouse(topic, row);
       });
     },
   });
