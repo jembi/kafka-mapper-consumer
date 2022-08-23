@@ -1,11 +1,11 @@
 import { Kafka, logLevel } from "kafkajs";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, LooseObject } from "./types";
-import { loadDataIntoClickhouse, createClickhouseTables } from "./clickhouse/utils";
+import { loadDataIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 
-const kafkaHost = process.env.KAFKA_HOST || "localhost";
+const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
 
 const kafka = new Kafka({
@@ -19,8 +19,6 @@ const producer = kafka.producer();
 
 const run = async () => {
   const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
-
-  createClickhouseTables();
 
   await consumer.connect();
   await producer.connect();
@@ -37,7 +35,7 @@ const run = async () => {
       fhirMapping?.tableMappings.forEach((tableMapping) => {
         const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
         tableMapping.columnMappings.forEach((columnMapping) => {
-          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
+          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
         });
         loadDataIntoClickhouse(topic, row);
       });

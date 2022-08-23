@@ -8,7 +8,8 @@ export const tables = [
         patientGivenName String
 
     ) 
-    ENGINE=MergeTree(createdAt, (patientId, createdAt))`,
+    ENGINE=MergeTree(createdAt, (patientId, createdAt))
+    ORDER BY tuple()`,
   `CREATE TABLE observation(
         createdAt Date,
         observationCode String, 
@@ -16,5 +17,6 @@ export const tables = [
         observationUnit String,
         observationValue String
     ) 
-    ENGINE=MergeTree(createdAt, (observationCode, createdAt))`,
+    ENGINE=MergeTree(createdAt, (observationCode, createdAt))
+    ORDER BY tuple()`,
 ];
