@@ -1,5 +1,5 @@
 export const tables = [
-    `CREATE TABLE patient(
+  `CREATE TABLE patient(
         createdAt Date,
         updatedAt Date,
         patientId String,
@@ -8,13 +8,13 @@ export const tables = [
         patientGivenName String
 
     ) 
-    ENGINE=MergeTree(createdAt, (patientId, createdAt))`, 
-    `CREATE TABLE observation(
+    ENGINE=MergeTree(createdAt, (patientId, createdAt))`,
+  `CREATE TABLE observation(
         createdAt Date,
         observationCode String, 
         observationDateTime DateTime, 
         observationUnit String,
         observationValue String
     ) 
-    ENGINE=MergeTree(createdAt, (observationCode, createdAt))`
-]
+    ENGINE=MergeTree(createdAt, (observationCode, createdAt))`,
+];

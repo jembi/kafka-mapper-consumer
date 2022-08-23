@@ -20,7 +20,7 @@ const producer = kafka.producer();
 const run = async () => {
   const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
 
-  createClickhouseTables()
+  createClickhouseTables();
 
   await consumer.connect();
   await producer.connect();
@@ -39,7 +39,7 @@ const run = async () => {
         tableMapping.columnMappings.forEach((columnMapping) => {
           row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
         });
-        loadDataIntoClickhouse(topic, row)
+        loadDataIntoClickhouse(topic, row);
       });
     },
   });

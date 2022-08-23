@@ -1,7 +1,6 @@
 [
-    {
-        "tableName": "patient", 
-        "query": "INSERT INTO patient(patientId, patientName, patientFamilyName, patientGivenName) VALUES($1. $2, $3, $4)"
-    }
+  {
+    "tableName": "patient",
+    "query": "INSERT INTO patient(patientId, patientName, patientFamilyName, patientGivenName) VALUES($1. $2, $3, $4)"
+  }
 ]
-
