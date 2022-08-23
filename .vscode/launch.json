@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Example",
+        "name": "Launch",
         "type": "node",
         "request": "launch",
         "runtimeExecutable": "node",
