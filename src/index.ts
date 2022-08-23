@@ -1,4 +1,8 @@
 import { Kafka, logLevel } from "kafkajs";
+import { Entry, FhirMapping, Table } from "./types";
+import { GetTableMappings } from "./util";
+
+const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
@@ -13,12 +17,24 @@ const consumer = kafka.consumer({ groupId: "kafka-mapper-consumer" });
 const producer = kafka.producer();
 
 const run = async () => {
-  const topics = ["resource"];
+  const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
+
   await consumer.connect();
   await producer.connect();
   await consumer.subscribe({ topics, fromBeginning: true });
-  //TODO: TO BE IMPLEMENTED
-  //await consumer.run();
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+      console.log(`- ${prefix} ${message.key}#${message.value}`);
+
+      const entry: Entry = JSON.parse(message.value?.toString() ?? "");
+
+      const tableMappings: Table[] = GetTableMappings(fhirMappings, entry);
+      console.log("🚀tableMappings", tableMappings);
+      // Logic to post to clickhouse
+    },
+  });
 };
 
 run().catch((e: Error) => console.error(`[kafka-mapper-consumer] ${e.message}`, e));

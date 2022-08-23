@@ -1,0 +1,38 @@
+[
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient_enrich",
+        "columnMappings": [
+          {
+            "columnName": "patientGivenName",
+            "fhirPath": "Patient.name.given"
+          },
+          {
+            "columnName": "patientFamilyName",
+            "fhirPath": "Patient.name.family"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient_enrich",
+        "columnMappings": [
+          {
+            "columnName": "patientGivenName",
+            "fhirPath": "Patient.name.given"
+          },
+          {
+            "columnName": "patientFamilyName",
+            "fhirPath": "Patient.name.family"
+          }
+        ]
+      }
+    ]
+  }
+]
