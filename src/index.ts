@@ -1,6 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, LooseObject } from "./types";
+import { loadDataIntoClickHouse, createClickhouseTables } from "./clickhouse/utils";
 
 const kafkaHost = process.env.KAFKA_HOST || "localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
@@ -18,6 +19,8 @@ const run = async () => {
   const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
   const topics = fhirMappings.map((fhirMapping) => fhirMapping.resourceType.toLowerCase());
 
+  createClickhouseTables()
+
   await consumer.connect();
   await producer.connect();
   await consumer.subscribe({ topics, fromBeginning: true });
@@ -32,9 +35,14 @@ const run = async () => {
       const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
       fhirMapping?.tableMappings.forEach((tableMapping) => {
         const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
-        tableMapping.columnMappings.forEach((columnMapping) => {
-          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
-        });
+
+        let matchFilter = tableMapping.filter ? fhirpath.evaluate(entry.resource, tableMapping.filter) : false
+        if(matchFilter){
+            tableMapping.columnMappings.forEach((columnMapping) => {
+                row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
+                loadDataIntoClickHouse(topic, row)
+            });
+        }
       });
     },
   });
