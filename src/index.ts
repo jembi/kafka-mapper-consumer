@@ -36,7 +36,7 @@ const run = async () => {
       fhirMapping?.tableMappings.forEach((tableMapping) => {
         const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
         tableMapping.columnMappings.forEach((columnMapping) => {
-          // TODO: find out what to do with the fhirpath evaulation arrat "[0]" is a temp solution for testing
+          // TODO: find out what to do with the fhirpath evaulation array "[0]" is a temp solution for testing
           row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
         });
         loadDataIntoClickhouse(topic, row);
