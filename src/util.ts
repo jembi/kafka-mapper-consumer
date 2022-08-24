@@ -42,19 +42,23 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
       tables.push(table);
     }
 
-    tableMapping.columnMappings.forEach((columnMapping) => {
-      if (table) {
-        table.rows[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
-      }
-    });
+    let matchFilter = tableMapping.filter ? fhirpath.evaluate(entry.resource, tableMapping.filter)[0] : true;
+    if (matchFilter) {
+      tableMapping.columnMappings.forEach((columnMapping) => {
+        if (table) {
+          // TODO: find out how we should handle multiple return values of the fhirpath evaluation
+          table.rows[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
+        }
+      });
 
-    if (tableMapping.plugin) {
-      try {
-        const pluginScript: PluginScript = require(`./plugin/${tableMapping.plugin}`);
-        table = pluginScript.plugin(tableMapping, entry, table);
-      } catch (error) {
-        console.error(`An error occured while trying to process plugin ${tableMapping.plugin}`);
-        console.error(error);
+      if (tableMapping.plugin) {
+        try {
+          const pluginScript: PluginScript = require(`./plugin/${tableMapping.plugin}`);
+          table = pluginScript.plugin(tableMapping, entry, table);
+        } catch (error) {
+          console.error(`An error occured while trying to process plugin ${tableMapping.plugin}`);
+          console.error(error);
+        }
       }
     }
   });
