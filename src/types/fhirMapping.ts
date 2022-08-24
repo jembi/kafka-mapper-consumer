@@ -6,7 +6,7 @@ export interface ColumnMapping {
 export interface TableMapping {
   targetTable: string;
   columnMappings: ColumnMapping[];
-  filter: string;
+  filter?: string;
 }
 
 export interface FhirMapping {

@@ -1,9 +1,15 @@
 import { Kafka, logLevel } from "kafkajs";
-import fhirpath from "fhirpath";
-import { Entry, FhirMapping, LooseObject } from "./types";
+import { Entry, FhirMapping, Table } from "./types";
+import { GetTableMappings, ValidateFhirMappingsJson } from "./util";
 import { loadDataIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
+const fhirMappingValidationErrors = ValidateFhirMappingsJson(fhirMappings);
+if (fhirMappingValidationErrors.length > 0) {
+  console.error("Invalid fhir-mapping.json file");
+  fhirMappingValidationErrors.forEach((error) => console.error(error));
+  process.exit(1);
+}
 
 // TODO: find out if http is required for local testing
 const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
@@ -32,15 +38,12 @@ const run = async () => {
 
       const entry: Entry = JSON.parse(message.value?.toString() ?? "");
 
-      const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
-      fhirMapping?.tableMappings.forEach((tableMapping) => {
-        const row: LooseObject = {}; //Set once we know what the required data structure is for inserting into clickhouse
-        tableMapping.columnMappings.forEach((columnMapping) => {
-          // TODO: find out what to do with the fhirpath evaulation array "[0]" is a temp solution for testing
-          row[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
-        });
-        loadDataIntoClickhouse(topic, row);
-      });
+      const tableMappings: Table[] = GetTableMappings(fhirMappings, entry);
+
+      const clickhousePromises = tableMappings.map((tableMapping) => loadDataIntoClickhouse(tableMapping));
+      Promise.allSettled(clickhousePromises)
+        .then((results) => results.forEach((result) => console.log(result)))
+        .catch((error) => console.error(error));
     },
   });
 };
