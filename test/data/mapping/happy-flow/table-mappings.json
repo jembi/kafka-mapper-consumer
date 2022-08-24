@@ -2,8 +2,8 @@
   {
     "name": "patient_enrich",
     "rows": {
-      "patientGivenName": ["Almazing", "Lamesies"],
-      "patientFamilyName": ["Guame"]
+      "patientGivenName": "Almazing",
+      "patientFamilyName": "Guame"
     }
   }
 ]
