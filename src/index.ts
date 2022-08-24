@@ -1,6 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import { Entry, FhirMapping, Table } from "./types";
 import { GetTableMappings, ValidateFhirMappingsJson } from "./util";
+import { loadDataIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 const fhirMappingValidationErrors = ValidateFhirMappingsJson(fhirMappings);
@@ -10,7 +11,8 @@ if (fhirMappingValidationErrors.length > 0) {
   process.exit(1);
 }
 
-const kafkaHost = process.env.KAFKA_HOST || "localhost";
+// TODO: find out if http is required for local testing
+const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
 
 const kafka = new Kafka({
@@ -37,8 +39,11 @@ const run = async () => {
       const entry: Entry = JSON.parse(message.value?.toString() ?? "");
 
       const tableMappings: Table[] = GetTableMappings(fhirMappings, entry);
-      console.log("🚀tableMappings", tableMappings);
-      // Logic to post to clickhouse
+
+      const clickhousePromises = tableMappings.map((tableMapping) => loadDataIntoClickhouse(tableMapping));
+      Promise.allSettled(clickhousePromises)
+        .then((results) => results.forEach((result) => console.log(result)))
+        .catch((error) => console.error(error));
     },
   });
 };
