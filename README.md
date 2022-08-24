@@ -2,12 +2,21 @@
 This is the base package for the kafka mapper used in the jembi platform
 
 This project uses `yarn 1.22.17`
+
+## Install dependencies
+
+Run `yarn`
+
+## Start locally
+
+Run `yarn start`
+
 ## Tests
 
-Ensure all dependencies are installed, run
+Run `yarn test`
 
-`yarn`
+## Build docker image
 
-Run all tests, run
+Docker image: `jembi/kafka-mapper-consumer`
 
-`yarn test`
+Run `yarn build`
