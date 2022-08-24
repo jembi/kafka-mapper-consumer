@@ -41,11 +41,15 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
       tables.push(table);
     }
 
-    tableMapping.columnMappings.forEach((columnMapping) => {
-      if (table) {
-        table.rows[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath);
-      }
-    });
+    let matchFilter = tableMapping.filter ? fhirpath.evaluate(entry.resource, tableMapping.filter)[0] : true;
+    if (matchFilter) {
+      tableMapping.columnMappings.forEach((columnMapping) => {
+        if (table) {
+          // TODO: find out how we should handle multiple return values of the fhirpath evaluation
+          table.rows[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
+        }
+      });
+    }
   });
 
   return tables;
