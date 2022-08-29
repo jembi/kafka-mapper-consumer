@@ -16,4 +16,9 @@ Feature: Schema Validation
         Given I provide "missing-target-table" fhir-mapping for validation
         When The fhir mapping is validated against the schema
         Then I expect "missing-target-table" errors
+
+    Scenario: Missing Resource Type
+        Given I provide "missing-resource-type" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-resource-type" errors
     

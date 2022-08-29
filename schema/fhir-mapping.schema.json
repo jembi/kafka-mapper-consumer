@@ -7,6 +7,7 @@
       "properties": {
         "resourceType": {
           "type": "string",
+          "pattern": "[a-zA-Z]",
           "description": "The FHIR Resource from which to map table columns \nhttps://www.hl7.org/fhir/resourcelist.html"
         },
         "tableMappings": {
