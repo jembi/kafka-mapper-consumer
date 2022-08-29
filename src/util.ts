@@ -27,8 +27,10 @@ export const ValidateFhirMappingsJson = (fhirMappings: FhirMapping[]): Error[] =
   return errors;
 };
 
+const removeEmptyTableMappings = (tables: Table[]): Table[] => tables.filter((table) => Object.keys(table.rows).length > 0);
+
 export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Table[] => {
-  const tables: Table[] = [];
+  let tables: Table[] = [];
 
   const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
 
@@ -62,6 +64,8 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
       }
     }
   });
+
+  tables = removeEmptyTableMappings(tables);
 
   return tables;
 };

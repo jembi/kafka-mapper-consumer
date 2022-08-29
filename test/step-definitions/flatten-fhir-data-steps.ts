@@ -31,5 +31,5 @@ When("The consumer runs", function () {
 Then("I expect {string} table-mappings", function (testFolder: string) {
   const tableMappings: TableMapping = require(`../data/mapping/${testFolder}/table-mappings.json`);
   expect(tableMappings).to.exist;
-  expect(tableMappings).to.deep.equal(this.tableMappingOutcome);
+  expect(this.tableMappingOutcome).to.deep.equal(tableMappings);
 });
