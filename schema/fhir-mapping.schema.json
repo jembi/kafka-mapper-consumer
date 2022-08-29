@@ -18,6 +18,7 @@
               "properties": {
                 "targetTable": {
                   "type": "string",
+                  "pattern": "[a-zA-Z]",
                   "description": "The table in the database that this resource should map to"
                 },
                 "filter": {

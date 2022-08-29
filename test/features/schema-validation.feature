@@ -11,4 +11,9 @@ Feature: Schema Validation
         Given I provide "duplicate-resource-type" fhir-mapping for validation
         When The fhir mapping is validated against the schema
         Then I expect "duplicate-resource-type" errors
+
+    Scenario: Missing Target Table
+        Given I provide "missing-target-table" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-target-table" errors
     
