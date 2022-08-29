@@ -21,4 +21,14 @@ Feature: Schema Validation
         Given I provide "missing-resource-type" fhir-mapping for validation
         When The fhir mapping is validated against the schema
         Then I expect "missing-resource-type" errors
+
+    Scenario: Missing Column Name
+        Given I provide "missing-column-name" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-column-name" errors
+
+    Scenario: Missing FHIR Path
+        Given I provide "missing-fhir-path" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-fhir-path" errors
     

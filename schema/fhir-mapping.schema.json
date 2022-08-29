@@ -35,10 +35,12 @@
                       "properties": {
                         "fhirPath": {
                           "type": "string",
+                          "pattern": "[a-zA-Z]",
                           "description": "The FHIR Path to use for the mapping \nhttp://hl7.org/fhirpath/N1/"
                         },
                         "columnName": {
                           "type": "string",
+                          "pattern": "[a-zA-Z]",
                           "description": "The name of the column that this should map to"
                         }
                       },
