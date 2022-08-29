@@ -7,6 +7,7 @@ export interface TableMapping {
   targetTable: string;
   columnMappings: ColumnMapping[];
   filter?: string;
+  plugin?: string;
 }
 
 export interface FhirMapping {

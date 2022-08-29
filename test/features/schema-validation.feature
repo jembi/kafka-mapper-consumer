@@ -1,6 +1,6 @@
 Feature: Schema Validation
     As a user
-    I want ensure that the provided fhir-mapping json is valid in accordance with it's schema
+    I want to ensure that the provided fhir-mapping json file is valid in accordance with its schema
 
     Scenario: Happy Flow
         Given I provide "happy-flow" fhir-mapping for validation
