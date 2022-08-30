@@ -1,0 +1,9 @@
+[
+  {
+    "name": "patient_enrich",
+    "rows": {
+      "patientGivenName": "Almazing",
+      "patientFamilyName": "Guame"
+    }
+  }
+]

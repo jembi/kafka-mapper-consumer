@@ -1,7 +1,6 @@
 import Ajv from "ajv";
 import fhirpath from "fhirpath";
-import { Entry, FhirMapping, Table } from "./types";
-import { PluginScript } from "./types/plugin";
+import { Entry, FhirMapping, Table, PluginScript } from "./types";
 
 const ajv = new Ajv({ allErrors: true, strictTuples: false });
 const schema = require("../schema/fhir-mapping.schema.json");
@@ -56,7 +55,10 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
       if (tableMapping.plugin) {
         try {
           const pluginScript: PluginScript = require(`./plugin/${tableMapping.plugin}`);
-          table = pluginScript.plugin(tableMapping, entry, table);
+
+          if (typeof pluginScript?.plugin !== "function") throw new Error("plugin function is not exported from plugin script");
+
+          table = pluginScript.plugin(table, entry, tableMapping);
         } catch (error) {
           console.error(`An error occured while trying to process plugin ${tableMapping.plugin}`);
           console.error(error);
