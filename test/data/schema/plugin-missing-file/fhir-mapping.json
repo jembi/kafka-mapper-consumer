@@ -4,7 +4,7 @@
     "tableMappings": [
       {
         "targetTable": "patient_enrich",
-        "plugin": "../../test/data/mapping/plugin-missing-function/plugin.ts",
+        "plugin": "../../test/data/schema/plugin-missing-file/plugin.ts",
         "columnMappings": [
           {
             "columnName": "patientGivenName",

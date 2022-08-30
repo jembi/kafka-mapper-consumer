@@ -25,16 +25,4 @@ Feature: Flatten FHIR data
         And I provide "valid-plugin" fhir-mapping
         When The consumer runs
         Then I expect "valid-plugin" table-mappings
-
-    Scenario: A plugin with invalid parameter signature
-        Given I receive "plugin-missing-function" entry
-        And I provide "plugin-missing-function" fhir-mapping
-        When The consumer runs
-        Then I expect "plugin-missing-function" table-mappings
-
-    Scenario: A plugin with invalid parameter signature
-        Given I receive "plugin-missing-file" entry
-        And I provide "plugin-missing-file" fhir-mapping
-        When The consumer runs
-        Then I expect "plugin-missing-file" table-mappings
     

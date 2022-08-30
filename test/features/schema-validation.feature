@@ -31,4 +31,14 @@ Feature: Schema Validation
         Given I provide "missing-fhir-path" fhir-mapping for validation
         When The fhir mapping is validated against the schema
         Then I expect "missing-fhir-path" errors
+
+    Scenario: A plugin with missing function export
+        Given I provide "plugin-missing-function" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "plugin-missing-function" errors
+
+    Scenario: A plugin with missing file
+        Given I provide "plugin-missing-file" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "plugin-missing-file" errors
     

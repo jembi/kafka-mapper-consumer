@@ -1,4 +1,6 @@
 import Ajv from "ajv";
+import fs from "fs";
+import path from "path";
 import fhirpath from "fhirpath";
 import { Entry, FhirMapping, Table, PluginScript } from "./types";
 
@@ -7,17 +9,67 @@ const schema = require("../schema/fhir-mapping.schema.json");
 delete schema["$schema"];
 const validate = ajv.compile(schema);
 
-const hasUniqueResourceTypes = (fhirMappings: FhirMapping[]) => {
+const hasUniqueResourceTypes = (fhirMappings: FhirMapping[]): Boolean => {
   const resourceTypes = fhirMappings.map((fhirMapping) => fhirMapping.resourceType);
   const uniqueResourceTypes = [...new Set(resourceTypes)];
   const hasUniqueResourceTypes = uniqueResourceTypes.length === fhirMappings.length;
   return hasUniqueResourceTypes;
 };
 
+const getPluginScriptNames = (fhirMappings: FhirMapping[]) => {
+  let pluginScriptNames = [];
+  fhirMappings.forEach((fhirMapping) => {
+    fhirMapping.tableMappings.forEach((tableMapping) => {
+      if (tableMapping.plugin) {
+        pluginScriptNames.push(tableMapping.plugin);
+      }
+    });
+  });
+  const uniquePluginScriptNames = [...new Set(pluginScriptNames)];
+
+  return uniquePluginScriptNames;
+};
+
+const validatePluginScriptsExist = (fhirMappings: FhirMapping[]): Error[] => {
+  const errors: Error[] = [];
+  const pluginScriptNames = getPluginScriptNames(fhirMappings);
+
+  pluginScriptNames.forEach((pluginName) => {
+    const doesExist = fs.existsSync(path.resolve(__dirname, `./plugin/${pluginName}`));
+    if (!doesExist) errors.push(new Error(`Could not find plugin: "${pluginName}" in the plugin directory`));
+  });
+  return errors;
+};
+
+const validatePluginScriptsFunction = (fhirMappings: FhirMapping[]): Error[] => {
+  const errors: Error[] = [];
+  const pluginScriptNames = getPluginScriptNames(fhirMappings);
+
+  pluginScriptNames.forEach((pluginName) => {
+    const doesExist = fs.existsSync(path.resolve(__dirname, `./plugin/${pluginName}`));
+    if (doesExist) {
+      try {
+        const pluginScript: PluginScript = require(`./plugin/${pluginName}`);
+        if (typeof pluginScript?.plugin !== "function") throw new Error("Plugin function is not exported from plugin script");
+      } catch (error) {
+        if (error?.message) {
+          errors.push(new Error(error.message));
+        } else {
+          errors.push(new Error(`Error occured while trying to load plugin from ${pluginName}`));
+        }
+      }
+    }
+  });
+  return errors;
+};
+
 export const ValidateFhirMappingsJson = (fhirMappings: FhirMapping[]): Error[] => {
   let errors: Error[] = [];
 
   if (!hasUniqueResourceTypes(fhirMappings)) errors.push(new Error("Duplicate resource type "));
+
+  errors = [...errors, ...validatePluginScriptsExist(fhirMappings)];
+  errors = [...errors, ...validatePluginScriptsFunction(fhirMappings)];
 
   if (!validate(fhirMappings)) {
     errors = [...errors, ...(validate.errors?.map((error) => new Error(error.message)) ?? [])];
@@ -55,9 +107,6 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
       if (tableMapping.plugin) {
         try {
           const pluginScript: PluginScript = require(`./plugin/${tableMapping.plugin}`);
-
-          if (typeof pluginScript?.plugin !== "function") throw new Error("plugin function is not exported from plugin script");
-
           table = pluginScript.plugin(table, entry, tableMapping);
         } catch (error) {
           console.error(`An error occured while trying to process plugin ${tableMapping.plugin}`);
