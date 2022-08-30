@@ -1,6 +1,6 @@
 import { Given, When, Then } from "cucumber";
 import { Entry, FhirMapping, TableMapping } from "src/types";
-import { GetTableMappings } from "../../src/util";
+import { GetTableMappings, GetFhirPlugins } from "../../src/util";
 
 import chai from "chai";
 import chaiArrays from "chai-arrays";
@@ -17,13 +17,16 @@ Given("I receive {string} entry", function (testFolder: string) {
 });
 
 Given("I provide {string} fhir-mapping", function (testFolder: string) {
-  const fhirMapping: FhirMapping = require(`../data/mapping/${testFolder}/fhir-mapping.json`);
+  const fhirMapping: FhirMapping[] = require(`../data/mapping/${testFolder}/fhir-mapping.json`);
   expect(fhirMapping).to.exist;
   this.fhirMapping = fhirMapping;
+  const plugins = GetFhirPlugins(fhirMapping);
+  expect(plugins).to.exist;
+  this.plugins = plugins;
 });
 
 When("The consumer runs", function () {
-  const tableMappingOutcome = GetTableMappings(this.fhirMapping, this.entry);
+  const tableMappingOutcome = GetTableMappings(this.fhirMapping, this.entry, this.plugins);
   expect(tableMappingOutcome).to.exist;
   this.tableMappingOutcome = tableMappingOutcome;
 });

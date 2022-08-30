@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import fs from "fs";
 import path from "path";
 import fhirpath from "fhirpath";
-import { Entry, FhirMapping, Table, PluginScript } from "./types";
+import { Entry, FhirMapping, Table, PluginScript, FhirPlugin, instanceOfTable } from "./types";
 
 const ajv = new Ajv({ allErrors: true, strictTuples: false });
 const schema = require("../schema/fhir-mapping.schema.json");
@@ -78,9 +78,19 @@ export const ValidateFhirMappingsJson = (fhirMappings: FhirMapping[]): Error[] =
   return errors;
 };
 
+export const GetFhirPlugins = (fhirMappings: FhirMapping[]): Map<string, FhirPlugin> => {
+  const fhirPlugins = new Map<string, FhirPlugin>();
+  const pluginScriptNames = getPluginScriptNames(fhirMappings);
+  pluginScriptNames.forEach((pluginScriptName) => {
+    const pluginScript: PluginScript = require(`./plugin/${pluginScriptName}`);
+    fhirPlugins.set(pluginScriptName, pluginScript.plugin);
+  });
+  return fhirPlugins;
+};
+
 const removeEmptyTableMappings = (tables: Table[]): Table[] => tables.filter((table) => Object.keys(table.rows).length > 0);
 
-export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Table[] => {
+export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry, plugins: Map<string, FhirPlugin>): Table[] => {
   let tables: Table[] = [];
 
   const fhirMapping = fhirMappings.find((fm) => fm.resourceType === entry.resource.resourceType);
@@ -106,8 +116,11 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry): Tab
 
       if (tableMapping.plugin) {
         try {
-          const pluginScript: PluginScript = require(`./plugin/${tableMapping.plugin}`);
-          table = pluginScript.plugin(table, entry, tableMapping);
+          const plugin = plugins.get(tableMapping.plugin);
+          const pluginResult = plugin(table, entry, tableMapping);
+          if (pluginResult && instanceOfTable(pluginResult)) {
+            table = pluginResult;
+          }
         } catch (error) {
           console.error(`An error occured while trying to process plugin ${tableMapping.plugin}`);
           console.error(error);
