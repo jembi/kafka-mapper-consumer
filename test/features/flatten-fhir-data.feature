@@ -19,4 +19,10 @@ Feature: Flatten FHIR data
         And I provide "filter-no-match" fhir-mapping
         When The consumer runs
         Then I expect "filter-no-match" table-mappings
+
+    Scenario: A valid plugin
+        Given I receive "valid-plugin" entry
+        And I provide "valid-plugin" fhir-mapping
+        When The consumer runs
+        Then I expect "valid-plugin" table-mappings
     
