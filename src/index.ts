@@ -1,6 +1,6 @@
 import { Kafka, logLevel } from "kafkajs";
-import { Entry, FhirMapping, Table } from "./types";
-import { GetTableMappings, ValidateFhirMappingsJson } from "./util";
+import { Entry, FhirMapping, FhirPlugin, Table } from "./types";
+import { GetFhirPlugins, GetTableMappings, ValidateFhirMappingsJson } from "./util";
 import { loadDataIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
@@ -10,6 +10,8 @@ if (fhirMappingValidationErrors.length > 0) {
   fhirMappingValidationErrors.forEach((error) => console.error(error));
   process.exit(1);
 }
+
+const plugins: Map<string, FhirPlugin> = GetFhirPlugins(fhirMappings);
 
 // TODO: find out if http is required for local testing
 const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
@@ -38,7 +40,7 @@ const run = async () => {
 
       const entry: Entry = JSON.parse(message.value?.toString() ?? "");
 
-      const tableMappings: Table[] = GetTableMappings(fhirMappings, entry);
+      const tableMappings: Table[] = GetTableMappings(fhirMappings, entry, plugins);
 
       const clickhousePromises = tableMappings.map((tableMapping) => loadDataIntoClickhouse(tableMapping));
       Promise.allSettled(clickhousePromises)

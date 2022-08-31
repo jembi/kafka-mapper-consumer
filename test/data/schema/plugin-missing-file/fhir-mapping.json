@@ -1,0 +1,21 @@
+[
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient_enrich",
+        "plugin": "../../test/data/schema/plugin-missing-file/plugin.ts",
+        "columnMappings": [
+          {
+            "columnName": "patientGivenName",
+            "fhirPath": "Patient.name.given"
+          },
+          {
+            "columnName": "patientFamilyName",
+            "fhirPath": "Patient.name.family"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -27,5 +27,5 @@ Then("I expect {string} errors", function (testFolder: string) {
   expect(errors).to.exist;
   expect(errors).to.be.array();
   const validationOutcomeMessages: String[] = this.validationOutcome.map((error: Error) => error.message);
-  errors.should.all.satisfy((error: Error) => validationOutcomeMessages.includes(error.message));
+  expect(validationOutcomeMessages).to.include.members(errors);
 });

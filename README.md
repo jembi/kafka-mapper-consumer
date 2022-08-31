@@ -1,7 +1,7 @@
 # kafka-mapper-consumer
 This is the base package for the kafka mapper used in the jembi platform
 
-This project uses `yarn 1.22.17`
+This project uses `node 16.17.0` and `yarn 1.22.17`
 
 ## Install dependencies
 
@@ -49,7 +49,7 @@ Should you wish to include plugins in the docker built image these files should 
 
 The plugin script provided should export a function that conforms to the following spec:
 ```typescript
-type FhirPlugin = (tableMapping: TableMapping, entry: Entry, table: Table) => Table;
+type FhirPlugin = (table: Table, entry: Entry, tableMapping: TableMapping) => Table;
 
 export interface PluginScript {
   plugin: FhirPlugin;

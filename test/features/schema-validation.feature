@@ -11,4 +11,34 @@ Feature: Schema Validation
         Given I provide "duplicate-resource-type" fhir-mapping for validation
         When The fhir mapping is validated against the schema
         Then I expect "duplicate-resource-type" errors
+
+    Scenario: Missing Target Table
+        Given I provide "missing-target-table" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-target-table" errors
+
+    Scenario: Missing Resource Type
+        Given I provide "missing-resource-type" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-resource-type" errors
+
+    Scenario: Missing Column Name
+        Given I provide "missing-column-name" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-column-name" errors
+
+    Scenario: Missing FHIR Path
+        Given I provide "missing-fhir-path" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "missing-fhir-path" errors
+
+    Scenario: A plugin with missing function export
+        Given I provide "plugin-missing-function" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "plugin-missing-function" errors
+
+    Scenario: A plugin with missing file
+        Given I provide "plugin-missing-file" fhir-mapping for validation
+        When The fhir mapping is validated against the schema
+        Then I expect "plugin-missing-file" errors
     
