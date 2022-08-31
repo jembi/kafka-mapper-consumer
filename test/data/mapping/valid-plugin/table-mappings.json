@@ -2,6 +2,9 @@
   {
     "name": "patient_enrich",
     "rows": {
+      "id": "1234",
+      "lastUpdated": null,
+      "version": null,
       "patientGivenName": "Almazing",
       "patientFamilyName": "Guame",
       "patientFullName": "Almazing Guame"
