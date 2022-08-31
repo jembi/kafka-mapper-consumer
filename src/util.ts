@@ -90,6 +90,16 @@ export const GetFhirPlugins = (fhirMappings: FhirMapping[]): Map<string, FhirPlu
 
 const removeEmptyTableMappings = (tables: Table[]): Table[] => tables.filter((table) => Object.keys(table.rows).length > 0);
 
+const firstOrDefault = (arr: any[], defaultValue: any = null) => (arr?.length > 0 ? arr[0] : defaultValue);
+
+const mapDefaultResourceAttributes = (table: Table, entry: Entry) => {
+  const returnTable: Table = { ...table };
+  returnTable.rows["id"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.id`));
+  returnTable.rows["version"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.meta.versionId`));
+  returnTable.rows["lastUpdated"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.meta.lastUpdated`));
+  return returnTable;
+};
+
 export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry, plugins: Map<string, FhirPlugin>): Table[] => {
   let tables: Table[] = [];
 
@@ -103,14 +113,15 @@ export const GetTableMappings = (fhirMappings: FhirMapping[], entry: Entry, plug
         rows: {},
       };
       tables.push(table);
+      mapDefaultResourceAttributes(table, entry);
     }
 
-    let matchFilter = tableMapping.filter ? fhirpath.evaluate(entry.resource, tableMapping.filter)[0] : true;
+    let matchFilter = tableMapping.filter ? firstOrDefault(fhirpath.evaluate(entry.resource, tableMapping.filter)) : true;
     if (matchFilter) {
       tableMapping.columnMappings.forEach((columnMapping) => {
         if (table) {
           // TODO: find out how we should handle multiple return values of the fhirpath evaluation
-          table.rows[columnMapping.columnName] = fhirpath.evaluate(entry.resource, columnMapping.fhirPath)[0];
+          table.rows[columnMapping.columnName] = firstOrDefault(fhirpath.evaluate(entry.resource, columnMapping.fhirPath));
         }
       });
 
