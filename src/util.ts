@@ -88,7 +88,8 @@ export const GetFhirPlugins = (fhirMappings: FhirMapping[]): Map<string, FhirPlu
   return fhirPlugins;
 };
 
-const removeEmptyTableMappings = (tables: Table[]): Table[] => tables.filter((table) => Object.keys(table.rows).length > 0);
+const NUM_DEFAULT_RESOURCE_ATTRIBUTES = 3;
+const removeEmptyTableMappings = (tables: Table[]): Table[] => tables.filter((table) => Object.keys(table.rows).length > NUM_DEFAULT_RESOURCE_ATTRIBUTES);
 
 const firstOrDefault = (arr: any[], defaultValue: any = null) => (arr?.length > 0 ? arr[0] : defaultValue);
 
