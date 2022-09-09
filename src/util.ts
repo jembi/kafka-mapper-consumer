@@ -97,7 +97,7 @@ const mapDefaultResourceAttributes = (table: Table, entry: Entry) => {
   const returnTable: Table = { ...table };
   returnTable.rows["id"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.id`));
   returnTable.rows["version"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.meta.versionId`));
-  returnTable.rows["lastUpdated"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.meta.lastUpdated`));
+  returnTable.rows["last_updated"] = firstOrDefault(fhirpath.evaluate(entry.resource, `${entry.resource.resourceType}.meta.lastUpdated`));
   return returnTable;
 };
 
