@@ -3,10 +3,10 @@
     "name": "patient_enrich",
     "rows": {
       "id": "1234",
-      "lastUpdated": null,
+      "last_updated": null,
       "version": null,
-      "patientGivenName": "Almazing",
-      "patientFamilyName": "Guame"
+      "patient_given_name": "Almazing",
+      "patient_family_name": "Guame"
     }
   }
 ]
