@@ -5,9 +5,9 @@
       "id": "1234",
       "last_updated": null,
       "version": null,
-      "patientGivenName": "Almazing",
-      "patientFamilyName": "Guame",
-      "patientFullName": "Almazing Guame"
+      "patient_given_name": "Almazing",
+      "patient_family_name": "Guame",
+      "patient_full_name": "Almazing Guame"
     }
   }
 ]

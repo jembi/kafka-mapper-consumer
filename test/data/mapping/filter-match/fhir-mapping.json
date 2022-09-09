@@ -7,11 +7,11 @@
         "filter": "Patient.name.family = 'Guame'",
         "columnMappings": [
           {
-            "columnName": "patientGivenName",
+            "columnName": "patient_given_name",
             "fhirPath": "Patient.name.given"
           },
           {
-            "columnName": "patientFamilyName",
+            "columnName": "patient_family_name",
             "fhirPath": "Patient.name.family"
           }
         ]
