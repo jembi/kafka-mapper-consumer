@@ -60,7 +60,7 @@ Further type definitions may be found at `/src/types/`
 
 Example:
 ```typescript
-export const plugin = (tableMapping, entry, table) => {
+export const plugin = (table, entry, tableMapping) => {
   if (table.rows.patientGivenName && table.rows.patientFamilyName) {
     table.rows["patientFullName"] = `${table.rows.patientGivenName} ${table.rows.patientFamilyName}`;
   }
