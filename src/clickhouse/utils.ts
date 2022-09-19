@@ -16,8 +16,8 @@ const alterQuery = (table: Table) => `ALTER TABLE ${table.name} UPDATE ${Object.
 
 const insertQuery = (tableName: string, data: object) => `INSERT INTO ${tableName}(${Object.keys(data).join(", ")}) VALUES('${Object.values(data).join("', '")}')`;
 
-export const selectByIdClickhouse = async (table: Table) => clickhouse.query(selectQuery(table)).toPromise();
+export const selectByIdClickhouse = (table: Table) => clickhouse.query(selectQuery(table)).toPromise();
 
-export const alterRowIntoClickhouse = async (table: Table) => clickhouse.query(alterQuery(table)).toPromise();
+export const alterRowIntoClickhouse = (table: Table) => clickhouse.query(alterQuery(table)).toPromise();
 
-export const loadDataIntoClickhouse = async (table: Table) => clickhouse.insert(insertQuery(table.name, table.rows)).toPromise();
+export const loadDataIntoClickhouse = (table: Table) => clickhouse.insert(insertQuery(table.name, table.rows)).toPromise();
