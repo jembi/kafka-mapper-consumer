@@ -14,12 +14,17 @@ if (fhirMappingValidationErrors.length > 0) {
 const plugins: Map<string, FhirPlugin> = GetFhirPlugins(fhirMappings);
 
 // TODO: find out if http is required for local testing
-const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
+const kafkaHosts = process.env.KAFKA_HOST || "kafka-01";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
+
+let brokersString: string[] = [];
+kafkaHosts.split(",").forEach((host) => {
+  brokersString.push(`${host}:${kafkaPort}`);
+});
 
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
-  brokers: [`${kafkaHost}:${kafkaPort}`],
+  brokers: brokersString,
   clientId: "kafka-mapper-consumer",
 });
 
