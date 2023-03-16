@@ -1,0 +1,19 @@
+{
+  "urn": "urn:openhim-mediator:kafka-mapper-consumer",
+  "version": "0.0.1",
+  "name": "Kafka FHIR mapper",
+  "endpoints": [
+    { "name": "Kafka FHIR mapper", "host": "localhost", "port": 8080 }
+  ],
+  "configDefs": [
+    {
+      "param": "fhirMappings",
+      "displayName": "FHIR Mappings",
+      "description": "A JSON array describing a set of FHIR mappings to apply",
+      "type": "bigstring"
+    }
+  ],
+  "config": {
+    "fhirMappings": "<pulled-from-config-file>"
+  }
+}
