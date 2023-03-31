@@ -1,7 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import { Entry, FhirMapping, FhirPlugin, Table } from "./types";
 import { GetFhirPlugins, GetTableMappings, ValidateFhirMappingsJson } from "./util";
-import { loadDataIntoClickhouse } from "./clickhouse/utils";
+import { loadDataIntoClickhouse, selectByIdClickhouse, alterRowIntoClickhouse } from "./clickhouse/utils";
 
 const fhirMappings: FhirMapping[] = require("./data/fhir-mapping.json");
 const fhirMappingValidationErrors = ValidateFhirMappingsJson(fhirMappings);
@@ -14,12 +14,14 @@ if (fhirMappingValidationErrors.length > 0) {
 const plugins: Map<string, FhirPlugin> = GetFhirPlugins(fhirMappings);
 
 // TODO: find out if http is required for local testing
-const kafkaHost = process.env.KAFKA_HOST || "http://localhost";
+const kafkaHosts = process.env.KAFKA_HOST || "kafka-01";
 const kafkaPort = process.env.KAFKA_PORT || "9092";
+
+const brokersString: string[] = kafkaHosts.split(',').map(host => `${host}:${kafkaPort}`);
 
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
-  brokers: [`${kafkaHost}:${kafkaPort}`],
+  brokers: brokersString,
   clientId: "kafka-mapper-consumer",
 });
 
@@ -42,10 +44,18 @@ const run = async () => {
 
       const tableMappings: Table[] = GetTableMappings(fhirMappings, entry, plugins);
 
-      const clickhousePromises = tableMappings.map((tableMapping) => loadDataIntoClickhouse(tableMapping));
-      Promise.allSettled(clickhousePromises)
-        .then((results) => results.forEach((result) => console.log(result)))
-        .catch((error) => console.error(error));
+      for (const tableMapping of tableMappings) {
+        const res = await selectByIdClickhouse(tableMapping);
+        if (res.length == 0) {
+          loadDataIntoClickhouse(tableMapping)
+            .then((result) => console.log(result))
+            .catch((error) => console.error(error));
+        } else {
+          alterRowIntoClickhouse(tableMapping)
+            .then((result) => console.log(result))
+            .catch((error) => console.error(error));
+        }
+      }
     },
   });
 };
