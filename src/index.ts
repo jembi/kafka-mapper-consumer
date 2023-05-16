@@ -24,7 +24,7 @@ mediatorConfig.config.fhirMappings = JSON.stringify(fhirMappings, null, 2)
 
 const plugins: Map<string, FhirPlugin> = getFhirPlugins(fhirMappings)
 
-const kafkaHost = process.env.KAFKA_HOST ?? 'localhost'
+const kafkaHosts = process.env.KAFKA_HOST ?? 'localhost'
 const kafkaPort = process.env.KAFKA_PORT ?? '9092'
 const trustSelfSigned = (process.env.TRUST_SELF_SIGNED ?? 'false') === 'true'
 const openhimAuth = {
@@ -39,9 +39,13 @@ const shouldRegisterMediator =
 const fromBeginning = (process.env.KAFKA_FROM_BEGINNING ?? 'true') === 'true'
 const consumerGroupId = process.env.CONSUMER_GROUP_ID ?? 'kafka-mapper-consumer'
 
+const brokersString: string[] = kafkaHosts
+  .split(',')
+  .map(host => `${host}:${kafkaPort}`)
+
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
-  brokers: [`${kafkaHost}:${kafkaPort}`],
+  brokers: brokersString,
   clientId: 'kafka-mapper-consumer'
 })
 
