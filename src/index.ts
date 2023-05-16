@@ -7,9 +7,9 @@ import {
 import {promisify} from 'util'
 import {Entry, FhirMapping, FhirPlugin, Table} from './types'
 import {
-  GetFhirPlugins,
-  GetTableMappings,
-  ValidateFhirMappingsJson
+  getFhirPlugins,
+  getTableMappings,
+  validateFhirMappingsJson
 } from './util'
 import {
   loadDataIntoClickhouse,
@@ -22,7 +22,7 @@ let fhirMappings: FhirMapping[] = require('./data/fhir-mapping.json')
 // Set default mediator FHIR mapping from config file
 mediatorConfig.config.fhirMappings = JSON.stringify(fhirMappings, null, 2)
 
-const plugins: Map<string, FhirPlugin> = GetFhirPlugins(fhirMappings)
+const plugins: Map<string, FhirPlugin> = getFhirPlugins(fhirMappings)
 
 const kafkaHost = process.env.KAFKA_HOST ?? 'localhost'
 const kafkaPort = process.env.KAFKA_PORT ?? '9092'
@@ -74,7 +74,7 @@ const run = async (newFhirMappings?) => {
     fhirMappings = JSON.parse(config.fhirMappings)
   }
 
-  const fhirMappingValidationErrors = ValidateFhirMappingsJson(fhirMappings)
+  const fhirMappingValidationErrors = validateFhirMappingsJson(fhirMappings)
   if (fhirMappingValidationErrors.length > 0) {
     console.error('Invalid fhir-mapping.json file')
     fhirMappingValidationErrors.forEach(error => console.error(error))
@@ -95,7 +95,7 @@ const run = async (newFhirMappings?) => {
 
       const entry: Entry = JSON.parse(message.value?.toString() ?? '')
 
-      const tableMappings: Table[] = GetTableMappings(
+      const tableMappings: Table[] = getTableMappings(
         fhirMappings,
         entry,
         plugins
