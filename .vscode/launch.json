@@ -1,18 +1,44 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Launch",
-        "type": "node",
-        "request": "launch",
-        "runtimeExecutable": "node",
-        "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
-  
-        "args": ["src/index.ts"],
-        
-        "cwd": "${workspaceRoot}",
-        "internalConsoleOptions": "openOnSessionStart",
-        "skipFiles": ["<node_internals>/**", "node_modules/**"]
-      }
-    ]
-  }
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+
+      "args": ["src/index.ts"],
+
+      "cwd": "${workspaceRoot}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+    },
+    {
+      "name": "Launch - Register Mediator",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
+
+      "args": ["src/index.ts"],
+      "env": {
+        "REGISTER_MEDIATOR": "true",
+        "TRUST_SELF_SIGNED": "true",
+        "OPENHIM_PASSWORD": "${input:openhimPassword}"
+      },
+
+      "cwd": "${workspaceRoot}",
+      "internalConsoleOptions": "openOnSessionStart",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "openhimPassword",
+      "description": "Please enter your OpenHIM root password",
+      "default": "password",
+      "type": "promptString"
+    }
+  ]
+}

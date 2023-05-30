@@ -1,4 +1,5 @@
 # kafka-mapper-consumer
+
 This is the base package for the kafka mapper used in the jembi platform
 
 This project uses `node 16.17.0` and `yarn 1.22.17`
@@ -10,6 +11,24 @@ Run `yarn`
 ## Start locally
 
 Run `yarn start`
+
+### Launch dev dependencies
+
+To test locally you will need a few dependencies: Kafka, Clickhouse and OpenHIM. Use the following command to setup those in a dev environment.
+
+```bash
+docker-compose -f docker-compose.deps.yml up
+# Visit the openHIM console to set a root password: http://localhost:9090
+./create-test-tables.sh
+./push-patient.sh
+./list-patients.sh
+# Now, launch the application `yarn start` or by use the vscode debugger and it will process the queue
+```
+
+Dep UIs:
+
+* View the OpenHIM medaitor section: <http://localhost:9090/#!/mediators>
+* Clickhouse play: <http://localhost:8124/play>
 
 ## Tests
 
@@ -48,6 +67,7 @@ Plugins are located in the `/src/plugin/` directory.
 Should you wish to include plugins in the docker built image these files should be included at `/app/src/plugin/`
 
 The plugin script provided should export a function that conforms to the following spec:
+
 ```typescript
 type FhirPlugin = (table: Table, entry: Entry, tableMapping: TableMapping) => Table;
 
@@ -59,6 +79,7 @@ export interface PluginScript {
 Further type definitions may be found at `/src/types/`
 
 Example:
+
 ```typescript
 export const plugin = (tableMapping, entry, table) => {
   if (table.rows.patientGivenName && table.rows.patientFamilyName) {
