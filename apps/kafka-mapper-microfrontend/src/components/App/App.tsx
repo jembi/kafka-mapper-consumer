@@ -1,6 +1,6 @@
 import { Typography, Grid, Paper, Divider } from "@mui/material";
 import { StylingValue } from "react-json-tree";
-import { FhirResourcesLoader } from "../RessourcesLoader/FhirResourcesLoader";
+import { FhirResourcesLoader } from "../ResourcesLoader/FhirResourcesLoader";
 import { FhirMapperConfigEditor } from "../ConfigEditor/ConfigEditor";
 
 export const getLabelStyle: StylingValue = ({ style }, nodeType) => ({
