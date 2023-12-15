@@ -4,8 +4,8 @@ This is the base package for the Kafka Mapper used in the Jembi platform.
 
 ## Prerequisites
 
-- `node 16.17.0` 
-- `yarn 1.22.17`
+- `node lts/iron`
+- `yarn >=1.22.17`
 
 ## Installation
 
@@ -34,8 +34,8 @@ docker-compose -f docker-compose.deps.yml up
 
 Dep UIs:
 
-* View the OpenHIM medaitor section: <http://localhost:9090/#!/mediators>
-* Clickhouse play: <http://localhost:8124/play>
+- View the OpenHIM medaitor section: <http://localhost:9090/#!/mediators>
+- Clickhouse play: <http://localhost:8124/play>
 
 ## Tests
 
@@ -76,10 +76,14 @@ Should you wish to include plugins in the docker built image these files should 
 The plugin script provided should export a function that conforms to the following spec:
 
 ```typescript
-type FhirPlugin = (table: Table, entry: Entry, tableMapping: TableMapping) => Table;
+type FhirPlugin = (
+  table: Table,
+  entry: Entry,
+  tableMapping: TableMapping
+) => Table
 
 export interface PluginScript {
-  plugin: FhirPlugin;
+  plugin: FhirPlugin
 }
 ```
 
@@ -90,8 +94,10 @@ Example:
 ```typescript
 export const plugin = (tableMapping, entry, table) => {
   if (table.rows.patientGivenName && table.rows.patientFamilyName) {
-    table.rows["patientFullName"] = `${table.rows.patientGivenName} ${table.rows.patientFamilyName}`;
+    table.rows[
+      'patientFullName'
+    ] = `${table.rows.patientGivenName} ${table.rows.patientFamilyName}`
   }
-  return table;
-};
+  return table
+}
 ```
