@@ -1,40 +1,7 @@
 {
-  "name": "kafka-mapper-consumer",
-  "version": "0.0.1",
-  "license": "MIT",
-  "main": "src/index.ts",
-  "dependencies": {
-    "@types/node": "18.7.6",
-    "ajv": "8.11.0",
-    "clickhouse": "2.5.1",
-    "fhirpath": "2.14.6",
-    "kafkajs": "2.0.2",
-    "openhim-mediator-utils": "^0.2.4",
-    "ts-node": "10.9.1",
-    "typescript": "4.7.4"
-  },
-  "devDependencies": {
-    "@cucumber/cucumber": "8.5.1",
-    "@cucumber/pretty-formatter": "1.0.0",
-    "@types/chai": "4.3.3",
-    "@types/chai-arrays": "2.0.0",
-    "@types/chai-things": "0.0.35",
-    "@types/cucumber": "6.0.1",
-    "@types/expect": "24.3.0",
-    "@types/mocha": "9.1.1",
-    "chai": "4.3.6",
-    "chai-arrays": "2.2.0",
-    "chai-things": "0.2.0",
-    "cucumber": "6.0.5",
-    "cucumber-pretty": "6.0.0",
-    "cucumber-tsflow": "4.0.0-preview.7",
-    "mocha": "10.0.0",
-    "ts-mocha": "10.0.0"
-  },
-  "scripts": {
-    "start": "ts-node src/index.ts",
-    "build": "docker build -t jembi/kafka-mapper-consumer .",
-    "test": "npm run cucumber",
-    "cucumber": "cucumber-js test/features/**/*.feature --no-color --logLevel=error --require test/step-definitions/**/*.ts --require-module ts-node/register --format-options \"{\\\"snippetInterface\\\": \\\"async-await\\\"}\" --format summary --format progress-bar"
-  }
+  "private": true,
+  "workspaces": [
+    "kafka-mapper-consumer"
+  ],
+  "license": "MIT"
 }

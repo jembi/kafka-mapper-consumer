@@ -1,5 +1,5 @@
 import {Given, When, Then} from 'cucumber'
-import {FhirMapping} from 'src/types'
+import {FhirMapping} from '../../src/types'
 import {validateFhirMappingsJson} from '../../src/util'
 
 import chai from 'chai'
