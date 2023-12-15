@@ -1,7 +1,8 @@
 {
   "private": true,
   "workspaces": [
-    "kafka-mapper-consumer"
+    "apps/kafka-mapper-consumer",
+    "apps/kafka-mapper-microfrontend"
   ],
   "license": "MIT"
 }
