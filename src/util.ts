@@ -207,3 +207,231 @@ export const getTableMappings = (
 
   return tables
 }
+
+// Mappings of the raw tables
+const clickHouseTableMap = {
+  Organization: {
+    targetTable: 'raw_organization',
+    columnMappings: {
+      id: 'String',
+      name: 'String',
+      active: 'Bool',
+      ['identifier.system']: 'String',
+      ['identifier.value']: 'String',
+      ['address.city']: 'String',
+      ['address.district']: 'String',
+      ['address.state']: 'String',
+      ['address.line']: ['String'],
+      ['type.text']: 'String',
+      ['type.coding']: ['display', 'system', 'code']
+    }
+  },
+  Patient: {
+    targetTable: 'raw_patient',
+    columnMappings: {
+      id: 'String',
+      gender: 'String',
+      birthDate: 'Bool',
+      ['name.use']: 'String',
+      ['name.family']: 'String',
+      ['name.given']: ['String'],
+      ['telecom.use']: 'String',
+      ['telecom.system']: 'String',
+      ['telecom.value']: 'String',
+      ['identifier.system']: 'String',
+      ['identifier.value']: 'String',
+      ['address.type']: 'String',
+      ['address.text']: 'String',
+      ['address.city']: 'String',
+      ['address.district']: 'String',
+      ['address.state']: 'String',
+      ['address.line']: ['String'],
+      ['maritalStatus.text']: 'String',
+      ['maritalStatus.coding']: ['display', 'system', 'code'],
+      ['managingOrganization.reference']: 'String',
+      ['extension.url']: 'String',
+      ['extension.value']: ['JSON']
+    }
+  },
+  Encounter: {
+    targetTable: 'raw_encounter',
+    columnMappings: {
+      id: 'String',
+      status: 'String',
+      ['period.end']: 'Date',
+      ['period.start']: 'Date',
+      ['identifier.system']: 'String',
+      ['identifier.value']: 'String',
+      ['serviceType.text']: 'String',
+      ['serviceType.coding']: ['display', 'system', 'code'],
+      ['type.text']: 'String',
+      ['type.coding']: ['display', 'system', 'code'],
+      ['subject.reference']: 'String',
+      ['extension.url']: 'String',
+      ['extension.value']: ['JSON']
+    }
+  },
+  MedicationDispense: {
+    targetTable: 'raw_medication_dispense',
+    columnMappings: {
+      id: 'String',
+      status: 'String',
+      ['quantity.value']: 'String',
+      ['quantity.system']: 'String',
+      ['quantity.code']: 'String',
+      ['quantity.unit']: 'String',
+      ['daysSupply.value']: 'String',
+      ['daysSupply.system']: 'String',
+      ['daysSupply.code']: 'String',
+      ['daysSupply.unit']: 'String',
+      ['medicationCodeableConcept.text']: 'String',
+      ['medicationCodeableConcept.coding']: ['display', 'system', 'code'],
+      ['statusReasonCodeableConcept.text']: 'String',
+      ['statusReasonCodeableConcept.coding']: ['display', 'system', 'code'],
+      ['subject.reference']: 'String',
+      ['context.reference']: 'String',
+      ['extension.url']: 'String',
+      ['extension.value']: ['JSON']
+    }
+  },
+  MedicationStatement: {
+    targetTable: 'raw_medication_statement',
+    columnMappings: {
+      id: 'String',
+      status: 'String',
+      ['effectivePeriod.end']: 'Date',
+      ['effectivePeriod.start']: 'Date',
+      ['medicationCodeableConcept.text']: 'String',
+      ['medicationCodeableConcept.coding']: ['display', 'system', 'code'],
+      ['reasonCode.text']: 'String',
+      ['reasonCode.coding']: ['display', 'system', 'code'],
+      ['category.text']: 'String',
+      ['category.coding']: ['display', 'system', 'code'],
+      ['subject.reference']: 'String',
+      ['context.reference']: 'String',
+      ['extension.url']: 'String',
+      ['extension.value']: ['JSON']
+    }
+  }
+}
+
+// A function to get a value from a path
+// Added a new param json (a boolean) for the extensions use case to return a JSON stringify of the object
+const getObjectPropertyValue = (obj, path, json = false) => {
+  const keys = path.split('.')
+  const res = keys.reduce((acc, key) => {
+    if (!acc) {
+      return acc
+    }
+    if (acc && Array.isArray(acc) && !json) {
+      return acc.map(e => getObjectPropertyValue(e, key))
+    }
+    if (acc && Array.isArray(acc) && json) {
+      return acc.map(e => {
+        if (e.url) delete e.url
+        return JSON.stringify(e)
+      })
+    }
+    if (acc[key] === undefined) {
+      return undefined
+    }
+    return acc[key]
+  }, obj)
+  return res
+}
+
+function getRaws(mappings, entry) {
+  const columns = Object.keys(mappings)
+  const data = columns.reduce((prev, curr) => {
+    const elements = curr.split('.')
+
+    // This is when the value is an object and we want to save all the object in a string
+    if (mappings[curr] === 'JSON') {
+      const entryValue = getObjectPropertyValue(entry, curr)
+      if (entryValue) {
+        return {...prev, [`${curr}`]: `'${JSON.stringify(entryValue)}'`}
+      }
+      return {...prev, [`${curr}`]: 'NULL'}
+    }
+    // When the element is not nested and the value is not a JSON
+    if (elements.length === 1) {
+      const entryValue = getObjectPropertyValue(entry, curr)
+      if (entryValue) {
+        return {...prev, [`${curr}`]: `'${entryValue}'`}
+      }
+      return {...prev, [`${curr}`]: 'NULL'}
+    }
+    // If the element is level 1 nested and the expected value isn't an array
+    if (elements.length === 2 && !Array.isArray(mappings[curr])) {
+      const entryValue = getObjectPropertyValue(entry, curr)
+      if (entryValue && Array.isArray(entryValue)) {
+        return {...prev, [`${curr}`]: `['${entryValue.join("', '")}']`}
+      } else if (entryValue) {
+        return {...prev, [`${curr}`]: `['${entryValue}']`}
+      }
+      return {...prev, [`${curr}`]: `['NULL']`}
+    }
+    // If the element is:
+    //  -  level 1 nested and the expected value is an array (e.g array of strings)
+    //  -  level 2 nested (we supply an array with the expected nested elements in the expected order)
+    //  -  level 2+ nested and the element is an extension
+    if (elements.length === 2 && Array.isArray(mappings[curr])) {
+      // level 1 nested and expected value is an array of string (e.g address.line = ['30', 'Street 2'])
+      if (mappings[curr][0] === 'String') {
+        const entryValue = getObjectPropertyValue(entry, curr)
+        const value =
+          entryValue && Array.isArray(entryValue)
+            ? entryValue.map(element => element.map(element => `'${element}'`))
+            : [entryValue]
+        return {
+          ...prev,
+          [`${curr}`]: `[${value.map(element => `[${element}]`).join(', ')}]`
+        }
+      }
+      // level 2+ nested and element is extension (to save the value of the extension as a JSON)
+      if (mappings[curr][0] === 'JSON' && curr === 'extension.value') {
+        const entryValue = getObjectPropertyValue(entry, curr, true)
+        if (entryValue) {
+          const value =
+            entryValue && Array.isArray(entryValue) ? entryValue : [entryValue]
+          return {
+            ...prev,
+            [`${curr}`]: `[${value.map(element => `'${element}'`).join(', ')}]`
+          }
+        }
+        return {...prev, [`${curr}`]: `['NULL']`}
+      }
+
+      // level 2 nested (we supply an array with the expected nested elements in the expected order)
+      // (e.g in the mapping: type.coding = ['display', 'code', 'system'], we need to save the in the order : values: [[('display1', 'code1', 'system1')]])
+      const nested = getObjectPropertyValue(entry, curr)
+      if (nested) {
+        const value = mappings[curr]
+          .map(e => {
+            const entryValue = getObjectPropertyValue(entry, `${curr}.${e}`)
+            return entryValue
+          })
+          .join("', '")
+
+        return {...prev, [`${curr}`]: `[[('${value}')]]`}
+      }
+      return {...prev, [`${curr}`]: '[[]]'}
+    }
+    return {...prev, [`${curr}`]: 'NULL'}
+  }, {})
+
+  return data
+}
+
+export function getRawTableMappings(resourceType, entry) {
+  const tableDefinition = clickHouseTableMap[resourceType]
+
+  if (!tableDefinition) {
+    throw new Error(
+      `Table definition not found for resource type: ${resourceType}`
+    )
+  }
+  const data = getRaws(tableDefinition.columnMappings, entry)
+
+  return {name: tableDefinition.targetTable, rows: data}
+}

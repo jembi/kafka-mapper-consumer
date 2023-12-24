@@ -9,12 +9,14 @@ import {Entry, FhirMapping, FhirPlugin, Table} from './types'
 import {
   getFhirPlugins,
   getTableMappings,
+  getRawTableMappings,
   validateFhirMappingsJson
 } from './util'
 import {
   loadDataIntoClickhouse,
   selectByIdClickhouse,
-  alterRowIntoClickhouse
+  alterRowIntoClickhouse,
+  loadRawDataIntoClickhouse
 } from './clickhouse/utils'
 import mediatorConfig from './data/mediator-config.json'
 
@@ -98,6 +100,17 @@ const run = async (newFhirMappings?) => {
       console.log(`- ${prefix} ${message.key}#${message.value}`)
 
       const entry: Entry = JSON.parse(message.value?.toString() ?? '')
+
+      if (entry && entry.resource) {
+        const rawTableMapping = getRawTableMappings(
+          entry.resource.resourceType,
+          entry.resource
+        )
+
+        loadRawDataIntoClickhouse(rawTableMapping)
+          .then(result => console.log(result))
+          .catch(error => console.error(error))
+      }
 
       const tableMappings: Table[] = getTableMappings(
         fhirMappings,
