@@ -6,15 +6,14 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  DialogContentText,
 } from "@mui/material";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 
 export function AddTableDialog() {
   const [open, setOpen] = useState(false);
-  const { addTable, activeFhirResource, addMappingSchemaItem } =
-    useFhirMapperConfig();
+  const { addTable } = useFhirMapperConfig();
   const [tableName, setTableName] = useState("");
+  const [error, setError] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -26,7 +25,13 @@ export function AddTableDialog() {
 
   const handleAddTable = (event) => {
     event.preventDefault();
-    addTable(tableName);
+    try {
+      addTable(tableName);
+    } catch (e) {
+      alert(e.message);
+      setError(true);
+      return;
+    }
     setOpen(false);
   };
 
@@ -54,7 +59,8 @@ export function AddTableDialog() {
               fullWidth
               required
               onChange={(e) => setTableName(e.target.value)}
-              helperText="Table name must start with a letter or underscore and contain only letters, numbers, and underscores."
+              helperText="Table name must be unique, start with a letter or underscore and contain only letters, numbers, and underscores."
+              error={error}
             ></TextField>
           </form>
         </DialogContent>

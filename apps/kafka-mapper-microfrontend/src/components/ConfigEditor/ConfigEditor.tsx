@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -12,13 +11,9 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import ExpressionPool from "./ExpressionPool";
-import { UpdateConfig } from "./UpdateConfig";
+import { ConfigPublisher } from "./ConfigPublisher";
 import { TablesContainer } from "./TablesContainer";
 import { AddExpressionDialog } from "./AddExpressionDialog";
-import {
-  MappingSchemaItem,
-  useFhirMapperConfig,
-} from "../FhirMapperConfigProvider";
 
 export function FhirMapperConfigEditor() {
   return (
@@ -28,7 +23,7 @@ export function FhirMapperConfigEditor() {
           <CardHeader
             title="Config Editor"
             subheader="Use tables and custom expressions to configure your FHIR resources."
-            action={<UpdateConfig />}
+            action={<ConfigPublisher />}
           />
           <Divider sx={{ height: 1, alignSelf: "stretch", my: 2 }}></Divider>
           <CardActions>

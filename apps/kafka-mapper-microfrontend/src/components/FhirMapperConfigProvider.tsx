@@ -5,8 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import debounce from "lodash.debounce";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { Bundle, FhirResource } from "fhir/r4";
 
 export const apiClient = axios.create({
@@ -79,6 +78,7 @@ interface FhirMapperContextType {
   mappingSchema: MappingSchemaItem[];
   tables: string[];
   addTable: (_tableName: string) => void;
+  removeTable: (_tableName: string) => void;
   addMappingSchemaItem: (
     targetTable: string,
     expression: ColumnMapping
@@ -101,6 +101,7 @@ const FhirMapperConfigContext = createContext<FhirMapperContextType>({
   mappingSchema: [],
   tables: [],
   addTable: (_table: string) => {},
+  removeTable: (_table: string) => {},
   addMappingSchemaItem: (
     _targetTable: string,
     _expression: ColumnMapping
@@ -151,11 +152,40 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
       )
     );
   };
+
   // tables are used to store the tables used in the mapping schema
   const [tables, setTables] = useState<string[]>([]);
   const addTable = (table: string) => {
-    setTables((prevTables) => [...prevTables, table]);
+    const isTableExist = mappingSchema.some((item) => {
+      return item.tableMappings.some(
+        (mapping) => mapping.targetTable === table
+      );
+    });
+
+    if (isTableExist) {
+      // Table exists in the mappingSchema
+      throw new Error("Table already exists in the mapping schema.");
+    } else {
+      // Table does not exist in the mappingSchema
+      setTables((prevTables) => [...prevTables, table]);
+    }
   };
+  const removeTable = (table: string) => {
+    setTables((prevTables) => prevTables.filter((t) => t !== table));
+    removeTargetTable(table);
+  };
+  const removeTargetTable = (table: string) => {
+    setMappingSchema((prevMappingSchema) => {
+      const updatedSchema = prevMappingSchema.map((item) => {
+        const updatedTableMappings = item.tableMappings.filter(
+          (mapping) => mapping.targetTable !== table
+        );
+        return { ...item, tableMappings: updatedTableMappings };
+      });
+      return updatedSchema;
+    });
+  };
+
   // Fetch the initial config from the API using Axios
   const fetchInitialConfig = async () => {
     try {
@@ -219,73 +249,83 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
   // Function to add an item to the mappingSchema
   const addMappingSchemaItem = (
     targetTable: string,
-    expression: ColumnMapping
+    { columnName, fhirPath }: ColumnMapping
   ) => {
-    const currentMappingIdx = mappingSchema.findIndex(
-      (mapping) => mapping.resourceType === activeFhirResource.resourceType
-    );
-    if (currentMappingIdx !== -1) {
-      // Resource type has been mapped already
-      const currentMapping = { ...mappingSchema[currentMappingIdx] };
-      const table = currentMapping.tableMappings.find(
-        (table) => table.targetTable === targetTable
+    setMappingSchema((prevMappingSchema) => {
+      const currentMappingIdx = prevMappingSchema.findIndex(
+        (mapping) => mapping.resourceType === activeFhirResource.resourceType
       );
-      if (table) {
-        // Target table already exists
-        currentMapping.tableMappings = currentMapping.tableMappings.filter(
-          (table) => table.targetTable !== targetTable
+
+      if (currentMappingIdx !== -1) {
+        const currentMapping = { ...prevMappingSchema[currentMappingIdx] };
+        const currentTableMappingIdx = currentMapping.tableMappings.findIndex(
+          (tableMapping) => tableMapping.targetTable === targetTable
         );
-        currentMapping.tableMappings.push({
-          targetTable,
-          columnMappings: [
-            ...table.columnMappings,
-            {
-              columnName: expression.columnName,
-              fhirPath: expression.fhirPath,
-            },
-          ],
-        });
+
+        if (currentTableMappingIdx !== -1) {
+          const currentTableMapping = {
+            ...currentMapping.tableMappings[currentTableMappingIdx],
+          };
+          const currentColumnMappingIdx =
+            currentTableMapping.columnMappings.findIndex(
+              (columnMapping) => columnMapping.columnName === columnName
+            );
+
+          if (currentColumnMappingIdx !== -1) {
+            // If columnName already exists, update its fhirPath
+            window.alert(
+              columnName +
+                " already exists in the mapping schema. the fhirPath will be overwritten using the value of the recent expression."
+            );
+            currentTableMapping.columnMappings[
+              currentColumnMappingIdx
+            ].fhirPath = fhirPath;
+          } else {
+            // If columnName does not exist, add new columnMapping
+            currentTableMapping.columnMappings.push({ columnName, fhirPath });
+          }
+
+          currentMapping.tableMappings.splice(
+            currentTableMappingIdx,
+            1,
+            currentTableMapping
+          );
+        } else {
+          // If targetTable does not exist, add new tableMapping
+          currentMapping.tableMappings.push({
+            targetTable,
+            columnMappings: [{ columnName, fhirPath }],
+          });
+        }
+
+        return [
+          ...prevMappingSchema.slice(0, currentMappingIdx),
+          currentMapping,
+          ...prevMappingSchema.slice(currentMappingIdx + 1),
+        ];
       } else {
-        // New target table mapping
-        currentMapping.tableMappings.push({
-          targetTable,
-          columnMappings: [
-            {
-              columnName: expression.columnName,
-              fhirPath: expression.fhirPath,
-            },
-          ],
-        });
+        // If the ResourceType has not been mapped yet, add new mapping
+        return [
+          ...prevMappingSchema,
+          {
+            resourceType: activeFhirResource.resourceType,
+            tableMappings: [
+              {
+                targetTable,
+                columnMappings: [{ columnName, fhirPath }],
+              },
+            ],
+          },
+        ];
       }
-      // Update the state
-      setMappingSchema((prevMappingSchema) => {
-        const newMappingSchema = [...prevMappingSchema];
-        newMappingSchema[currentMappingIdx] = currentMapping;
-        return newMappingSchema;
-      });
-    } else {
-      // Resource type has not been mapped yet
-      setMappingSchema((prevMappingSchema) => {
-        const newMappingSchema = [...prevMappingSchema];
-        newMappingSchema.push({
-          resourceType: activeFhirResource.resourceType,
-          tableMappings: [
-            {
-              targetTable,
-              columnMappings: [expression],
-            },
-          ],
-        });
-        return newMappingSchema;
-      });
-    }
+    });
   };
 
   /**
    * Updates the configuration on the server with the provided mapping schema.
    * @param mappingSchema - The updated mapping schema to be applied.
    */
-  const updateConfigOnServer = () => {
+  const updateConfigOnServer = async () => {
     setLoading(true);
     const updatedMediatorConfig = {
       // copy all existing config properties
@@ -299,23 +339,25 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
         fhirMappings: JSON.stringify(mappingSchema), // overwrite the fhirMappings
       },
     };
-    apiClient
-      .post("mediators/", updatedMediatorConfig)
-      .then((response) => {
-        // TODO: handle response status
-        if (response.status >= 200 && response.status < 300) {
-          window.alert("Config updated successfully.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating config:", error);
-        window.alert("Error updating config:" + error);
-      });
+    try {
+      const response = await apiClient.post(
+        "mediators/",
+        updatedMediatorConfig
+      );
+      // TODO: handle response status
+      if (response.status >= 200 && response.status < 300) {
+        window.alert("Config updated successfully.");
+      }
+    } catch (error) {
+      console.error("Error updating config:", error);
+      window.alert("Error updating config:" + error);
+    }
   };
 
   const clearConfig = () => {
     setLoading(true);
     setMediatorConfig(null);
+    fetchInitialConfig();
     setMappingSchema([]);
     setFhirBundle(null);
     setActiveFhirResource(null);
@@ -334,6 +376,7 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
           getMappingsByTable,
           tables,
           addTable,
+          removeTable,
           fhirBundle,
           setFhirBundle,
           activeFhirResource,

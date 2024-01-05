@@ -1,10 +1,11 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Card, CardHeader, IconButton, Typography } from "@mui/material";
 import { useDrop } from "react-dnd";
 import {
   ColumnMapping,
   useFhirMapperConfig,
 } from "../FhirMapperConfigProvider";
 import { ExpressionsDropTable } from "./ExpressionsDropTable";
+import { DeleteTableDialog } from "./DeleteTableDialog";
 
 export function Table({ table }: { table: string }) {
   const { getMappingsByTable, addMappingSchemaItem } = useFhirMapperConfig();
@@ -23,9 +24,9 @@ export function Table({ table }: { table: string }) {
 
   const selectBackgroundColor = (isActive: boolean, canDrop: boolean) => {
     if (isActive) {
-      return "lightgreen";
+      return "#5cb85c";
     } else if (canDrop) {
-      return "lightgray";
+      return "#F5F5F5";
     } else {
       return "inherit";
     }
@@ -36,10 +37,12 @@ export function Table({ table }: { table: string }) {
   const expressions = getMappingsByTable(table);
 
   return (
-    <Box key={table}>
-      <Typography variant="subtitle2" p={1}>
-        {table}
-      </Typography>
+    <Card key={table} elevation={0}>
+      <CardHeader
+        title={<Typography variant="subtitle2">{table}</Typography>}
+        action={<DeleteTableDialog table={table} />}
+      ></CardHeader>
+
       <Box
         ref={drop}
         sx={{
@@ -52,13 +55,9 @@ export function Table({ table }: { table: string }) {
           backgroundColor: backgroundColor,
         }}
       >
-        {isOver ? (
-          <Typography align="center" variant="inherit">
+        {isOver && (
+          <Typography align="center" variant="body2">
             Release to drop
-          </Typography>
-        ) : (
-          <Typography align="center" variant="inherit">
-            You can Drag an expression(s) here
           </Typography>
         )}
         {expressions.map((item) => {
@@ -66,10 +65,11 @@ export function Table({ table }: { table: string }) {
             <ExpressionsDropTable
               key={item.columnName + "-" + table}
               expression={item}
+              table={table}
             />
           );
         })}
       </Box>
-    </Box>
+    </Card>
   );
 }

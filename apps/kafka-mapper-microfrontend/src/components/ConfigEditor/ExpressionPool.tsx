@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
-import { DraggableChip } from "./DragabbleChip";
+import { DraggableChip } from "./DraggableChip";
 
 const ListItem = styled("li")(({ theme }) => ({
   margin: theme.spacing(0.5),
