@@ -1,52 +1,24 @@
 import { Box, Card, Typography } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { JSONTree, StylingValue } from "react-json-tree";
-import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
+import { JSONTree } from "react-json-tree";
+import { theme, getLabelStyle } from "../theme";
 
-
-export const getLabelStyle: StylingValue = ({ style }, nodeType) => ({
-  style: {
-    ...style,
-    fontFamily: "monospace",
-  },
-});
-
-export function JSONViewer(props) {
+export function JSONViewer({ data }) {
   /* Based on react-json-tree from redux-devtools developers
   https://github.com/reduxjs/redux-devtools/tree/main/packages/react-json-tree
   */
-  const { activeFhirResource } = useFhirMapperConfig();
-  const theme = {
-    name: "black-and-white",
-    scheme: "black-and-white",
-    author: "",
-    base00: "#FFFFFF",
-    base01: "#000000",
-    base02: "#000000",
-    base03: "#000000",
-    base04: "#000000",
-    base05: "#000000",
-    base06: "#000000",
-    base07: "#000000",
-    base08: "#000000",
-    base09: "#000000",
-    base0A: "#000000",
-    base0B: "#000000",
-    base0C: "#000000",
-    base0D: "#000000",
-    base0E: "#000000",
-    base0F: "#000000",
-  };
+
   return (
     <>
       <Card
         variant="outlined"
         sx={{ p: 3, maxHeight: "480px", overflow: "auto" }}
       >
-        {activeFhirResource ? (
+        {data !== null ? (
           <JSONTree
+            shouldExpandNodeInitially={(keyPath, data, level) => level < 3}
             collectionLimit={20}
-            data={activeFhirResource}
+            data={data}
             theme={{
               extend: theme,
               nestedNodeLabel: getLabelStyle,

@@ -14,7 +14,7 @@ import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 import { Bundle } from "fhir/r4";
 
 export function FhirResourcesLoader() {
-  const { setFhirBundle } = useFhirMapperConfig();
+  const { activeFhirResource, setFhirBundle } = useFhirMapperConfig();
   const readJsonFile = (file: Blob) =>
     new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -51,7 +51,7 @@ export function FhirResourcesLoader() {
         </CardActions>
         <CardContent>
           <FhirFileSelector />
-          <JSONViewer />
+          <JSONViewer data={activeFhirResource} />
         </CardContent>
       </Card>
     </>
