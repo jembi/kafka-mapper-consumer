@@ -9,9 +9,9 @@ import {
 import PublishIcon from "@mui/icons-material/Publish";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 import { useState } from "react";
-import { JSONTree } from "react-json-tree";
+import { JSONViewer } from "../FhirResourcesLoader/JSONViewer";
 
-export function UpdateConfig() {
+export function ConfigPublisher() {
   const [open, setOpen] = useState(false);
   const { mappingSchema, updateConfigOnServer } = useFhirMapperConfig();
 
@@ -55,7 +55,7 @@ export function UpdateConfig() {
             publishing it. This action will overwrite any existent FHIR Mapping.
             <strong> Are you sure you want to proceed?</strong>
           </DialogContentText>
-          <JSONTree collectionLimit={10} data={mappingSchema} />
+          <JSONViewer data={mappingSchema} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseReviewDialog}>Cancel</Button>
