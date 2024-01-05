@@ -5,6 +5,6 @@
     "declarationDir": "dist"
   },
   "files": ["src/jembi-kafka-mapper-consumer-ui.tsx"],
-  "include": ["src/**/*"],
+  "include": ["src/**/**/*"],
   "exclude": ["src/**/*.test*"]
 }

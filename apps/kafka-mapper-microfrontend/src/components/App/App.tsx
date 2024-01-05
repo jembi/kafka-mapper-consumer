@@ -1,29 +1,40 @@
+import { useEffect } from "react";
 import { Typography, Grid, Paper, Divider } from "@mui/material";
-import { StylingValue } from "react-json-tree";
-import { FhirResourcesLoader } from "../ResourcesLoader/FhirResourcesLoader";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { FhirResourcesLoader } from "../FhirResourcesLoader/FhirResourcesLoader";
 import { FhirMapperConfigEditor } from "../ConfigEditor/ConfigEditor";
+import {
+  FhirMapperConfigProvider,
+  useFhirMapperConfig,
+} from "../FhirMapperConfigProvider";
 
-export const getLabelStyle: StylingValue = ({ style }, nodeType) => ({
-  style: {
-    ...style,
-    fontFamily: "Roboto",
-    "San Francisco": style.fontFamily,
-  },
-});
-export function Workspace(props) {
+export function Workspace() {
+  const { activeFhirResource } = useFhirMapperConfig();
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6}>
         <FhirResourcesLoader />
       </Grid>
       <Grid item xs={12} md={6}>
-        <FhirMapperConfigEditor />
+        {activeFhirResource && <FhirMapperConfigEditor />}
       </Grid>
     </Grid>
   );
 }
 
 export default function App(props) {
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      // Custom logic to handle the refresh
+      // Display a confirmation message or perform necessary actions
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
   return (
     <>
       <Paper
@@ -39,7 +50,11 @@ export default function App(props) {
           <Divider sx={{ my: 2 }} />
         </section>
         <section id="fhir-mapper-workspace">
-          <Workspace />
+          <DndProvider backend={HTML5Backend}>
+            <FhirMapperConfigProvider>
+              <Workspace />
+            </FhirMapperConfigProvider>
+          </DndProvider>
         </section>
       </Paper>
     </>
