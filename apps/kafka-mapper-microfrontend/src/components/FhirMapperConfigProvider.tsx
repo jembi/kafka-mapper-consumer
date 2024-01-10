@@ -215,6 +215,7 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
       }
     } catch (error) {
       console.error("Error fetching initial config:", error);
+      window.alert("Error fetching initial config:" + error.message);
     }
   };
 
