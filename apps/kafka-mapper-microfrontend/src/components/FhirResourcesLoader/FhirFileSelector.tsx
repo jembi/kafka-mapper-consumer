@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 import { FhirResource } from "fhir/r4";
+import { nanoid } from 'nanoid'
 
 // File selector Menu
 export function FhirFileSelector() {
@@ -42,7 +43,7 @@ export function FhirFileSelector() {
           </MenuItem>
           {entries.length > 0 &&
             entries.map((item) => (
-              <MenuItem key={item.fullUrl} value={item.resource.id}>
+              <MenuItem key={nanoid()} value={item.resource.id}>
                 {item.resource.resourceType + " - " + item.resource.id}
               </MenuItem>
             ))}

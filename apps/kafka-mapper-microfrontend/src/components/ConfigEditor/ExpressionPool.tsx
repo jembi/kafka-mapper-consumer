@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 import { DraggableChip } from "./DraggableChip";
+import { nanoid } from "nanoid";
 
 const ListItem = styled("li")(({ theme }) => ({
   margin: theme.spacing(0.5),
@@ -28,8 +29,8 @@ export default function ExpressionPool() {
     >
       {expressions.map((expression) => {
         return (
-          <ListItem key={expression.columnName}>
-            <DraggableChip expression={expression} type="EXPRESSION" />
+          <ListItem key={nanoid()}>
+            <DraggableChip key={nanoid()} expression={expression} type="EXPRESSION" />
           </ListItem>
         );
       })}

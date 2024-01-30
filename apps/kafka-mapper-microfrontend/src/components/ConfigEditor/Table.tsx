@@ -6,6 +6,7 @@ import {
 } from "../FhirMapperConfigProvider";
 import { ExpressionsDropTable } from "./ExpressionsDropTable";
 import { DeleteTableDialog } from "./DeleteTableDialog";
+import { nanoid } from "nanoid";
 
 export function Table({ table }: { table: string }) {
   const { getMappingsByTable, addMappingSchemaItem } = useFhirMapperConfig();
@@ -63,7 +64,7 @@ export function Table({ table }: { table: string }) {
         {expressions.map((item) => {
           return (
             <ExpressionsDropTable
-              key={item.columnName + "-" + table}
+              key={nanoid()}
               expression={item}
               table={table}
             />
