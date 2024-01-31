@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { useFhirMapperConfig } from "../FhirMapperConfigProvider";
 import { AddTableDialog } from "./AddTableDialog";
 import { Table } from "./Table";
@@ -8,7 +9,7 @@ export function TablesContainer() {
     <div id="tables-container">
       <AddTableDialog />
       {tables.map((table) => (
-        <Table key={table} table={table} />
+        <Table key={nanoid()} table={table} />
       ))}
     </div>
   );

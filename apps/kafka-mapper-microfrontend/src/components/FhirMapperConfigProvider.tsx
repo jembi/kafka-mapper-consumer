@@ -328,22 +328,15 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
    */
   const updateConfigOnServer = async () => {
     setLoading(true);
-    const updatedMediatorConfig = {
-      // copy all existing config properties
-      ...mediatorConfig,
-      // bump the config version
-      version: mediatorConfig
-        ? `${parseInt(mediatorConfig.version.split(".")[0]) + 1}.0.0`
-        : "0.1.0",
-      config: {
-        ...mediatorConfig?.config, // copy all existing config properties
-        fhirMappings: JSON.stringify(mappingSchema), // overwrite the fhirMappings
-      },
-    };
+
+    const newMediatorConfig = {
+      fhirMappings: JSON.stringify(mappingSchema)
+    }
+    const mediatorUrn = mediatorConfig.urn;
     try {
-      const response = await apiClient.post(
-        "mediators/",
-        updatedMediatorConfig
+      const response = await apiClient.put(
+        `/mediators/${mediatorUrn}/config`,
+        newMediatorConfig
       );
       // TODO: handle response status
       if (response.status >= 200 && response.status < 300) {
