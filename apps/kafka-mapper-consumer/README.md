@@ -34,7 +34,7 @@ docker-compose -f docker-compose.deps.yml up
 
 Dep UIs:
 
-- View the OpenHIM medaitor section: <http://localhost:9090/#!/mediators>
+- View the OpenHIM mediator section: <http://localhost:9090/#!/mediators>
 - Clickhouse play: <http://localhost:8124/play>
 
 ## Tests
