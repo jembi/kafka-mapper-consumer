@@ -1,90 +1,25 @@
-# kafka-mapper-consumer
+# Kafka-Mapper
 
-This is the base package for the kafka mapper used in the jembi platform
+This repository contains the Kafka-Mapper mono repo project. It includes a Kafka consumer application for mapping FHIR Resources to ClickHouse and a microfrontend for configuring kafka-mapper-consumer from OpenHIM Console.
 
-This project uses `node 16.17.0` and `yarn 1.22.17`
+## Structure
 
-## Install dependencies
+The repository is organized into the following main directories:
 
-Run `yarn`
+- `apps`: This directory contains the applications in the monorepo.
 
-## Start locally
+  - `kafka-mapper-consumer`: This is a Kafka consumer application. It includes a Dockerfile for building a Docker image of the application, a JSON schema for FHIR mapping, and TypeScript source code.
 
-Run `yarn start`
+  - `kafka-mapper-microfrontend`: This is a microfrontend for the FHIR-Mapper-UI project.
 
-### Launch dev dependencies
+- `scripts`: This directory contains shell scripts for creating test tables, listing patients, and pushing patient data.
 
-To test locally you will need a few dependencies: Kafka, Clickhouse and OpenHIM. Use the following command to setup those in a dev environment.
+## Getting Started
 
-```bash
-docker-compose -f docker-compose.deps.yml up
-# Visit the openHIM console to set a root password: http://localhost:9090
-./create-test-tables.sh
-./push-patient.sh
-./list-patients.sh
-# Now, launch the application `yarn start` or by use the vscode debugger and it will process the queue
-```
+To get started with development, you'll need to have Docker and Node.js installed. Then, you can run `docker-compose -f docker-compose.deps.yml up` to start the dependencies, and `npm install` in the `apps/kafka-mapper-consumer` directory to install the application's dependencies.
 
-Dep UIs:
+For more information, see the README files in the `apps/kafka-mapper-consumer` and `apps/kafka-mapper-microfrontend` directories.
 
-* View the OpenHIM medaitor section: <http://localhost:9090/#!/mediators>
-* Clickhouse play: <http://localhost:8124/play>
+## License
 
-## Tests
-
-Run `yarn test`
-
-## Build docker image
-
-Docker image: `jembi/kafka-mapper-consumer`
-
-Run `yarn build`
-
-## FHIR Mapping
-
-### Schema
-
-The schema may be found in /schema/fhir-mapping.schema.json or [here](https://raw.githubusercontent.com/jembi/kafka-mapper-consumer/main/schema/fhir-mapping.schema.json?token=GHSAT0AAAAAABRAWUNTASOLWTLE2SXGJCDQYYGGSTA)
-
-This mapper currently only supports a single fhir mapping json file to load from and should be located and named as such in `/src/data/fhir-mapping.json`
-
-Should you wish to override this file in the docker built image it should be overwritten at `/app/src/data/fhir-mapping.json`
-
-### Fhir Path
-
-[Docs](https://www.hl7.org/fhir/fhirpath.html)
-
-Column mappings should always conform to the fhir path spec defined in the Docs
-
-### Filter
-
-The filter attribute should be a fhir path literal that resolves to a boolean (eg. "Patient.name.given = 'Buck'")
-
-### Plugin
-
-Plugins are located in the `/src/plugin/` directory.
-
-Should you wish to include plugins in the docker built image these files should be included at `/app/src/plugin/`
-
-The plugin script provided should export a function that conforms to the following spec:
-
-```typescript
-type FhirPlugin = (table: Table, entry: Entry, tableMapping: TableMapping) => Table;
-
-export interface PluginScript {
-  plugin: FhirPlugin;
-}
-```
-
-Further type definitions may be found at `/src/types/`
-
-Example:
-
-```typescript
-export const plugin = (tableMapping, entry, table) => {
-  if (table.rows.patientGivenName && table.rows.patientFamilyName) {
-    table.rows["patientFullName"] = `${table.rows.patientGivenName} ${table.rows.patientFamilyName}`;
-  }
-  return table;
-};
-```
+This project is licensed under the terms of the license found in the [LICENSE](LICENSE) file.

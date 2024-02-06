@@ -12,9 +12,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./",
     "paths": {
-      "src/*": ["./src/*"],
-      "test/*": ["./test/*"],
-      "schema/*": ["./schema/*"]
+      "src/*": ["apps/kafka-mapper-consumer/src/*"],
+      "test/*": ["apps/kafka-mapper-consumer/test/*"],
+      "schema/*": ["apps/kafka-mapper-consumer/schema/*"]
     }
   }
 }
