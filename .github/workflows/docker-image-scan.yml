@@ -2,7 +2,7 @@ name: Scan latest docker image
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: "0 5 * * *"
 
 jobs:
   scan-images:
@@ -13,17 +13,31 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t jembi/kafka-mapper-consumer:${{ github.sha }} .
+          docker build -t jembi/kafka-mapper-consumer:${{ github.sha }} ./apps/kafka-mapper-consumer && \
+          docker build -t jembi/kafka-mapper-consumer-ui:${{ github.sha }} ./apps/kafka-mapper-microfrontend
 
       - name: Run trivy vulnerability scanner for the Kafka Mapper consumer image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: jembi/kafka-mapper-consumer:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-        
+          format: "sarif"
+          output: "trivy-results.sarif"
+
       - name: Upload Trivy scan results to Github Security tab
         uses: github/codeql-action/upload-sarif@v2
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
+
+      - name: Run trivy vulnerability scanner for the Kafka Mapper consumer UI image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: jembi/kafka-mapper-consumer-ui:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to Github Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"

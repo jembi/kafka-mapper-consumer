@@ -1,4 +1,8 @@
 .git
 .DS_Store
 .env
-node_modules
+node_modules/
+Dockerfile
+.git
+dist
+README.md
