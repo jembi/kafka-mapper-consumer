@@ -1,5 +1,5 @@
 import {Given, When, Then} from 'cucumber'
-import {Entry, FhirMapping, TableMapping} from 'src/types'
+import {Entry, FhirMapping, TableMapping} from '../../src/types'
 import {getTableMappings, getFhirPlugins} from '../../src/util'
 
 import chai from 'chai'
