@@ -23,8 +23,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push tag
         if: ${{ github.ref_name != 'main' }}
@@ -37,8 +37,9 @@ jobs:
 
       - name: Build and push ui tag
         if: ${{ github.ref_name != 'main' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
+          platforms: linux/amd64,linux/arm64
           push: true
           file: apps/kafka-mapper-microfrontend/Dockerfile
           tags: jembi/kafka-mapper-consumer-ui:${{ github.ref_name }}
@@ -54,8 +55,9 @@ jobs:
 
       - name: Build and push ui tag
         if: ${{ github.ref_name == 'main' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
+          platforms: linux/amd64,linux/arm64
           push: true
           file: apps/kafka-mapper-microfrontend/Dockerfile
           tags: jembi/kafka-mapper-consumer-ui:latest

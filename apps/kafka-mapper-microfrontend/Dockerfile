@@ -1,6 +1,7 @@
-FROM node:16.17.1-alpine3.16 as build
+FROM node:20-alpine as build
 WORKDIR /usr/app
-COPY ./ /usr/app
+COPY apps/kafka-mapper-microfrontend/ .
+
 RUN npm install
 
 RUN npm run build

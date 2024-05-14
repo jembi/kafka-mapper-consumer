@@ -3,7 +3,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY . .
+COPY apps/kafka-mapper-consumer/ .
 
 RUN yarn --production --frozen-lockfile
 
