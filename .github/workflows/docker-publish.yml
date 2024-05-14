@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +32,17 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
+          file: apps/kafka-mapper-consumer/Dockerfile
           tags: jembi/kafka-mapper-consumer:${{ github.ref_name }}
+
+      - name: Build and push ui tag
+        if: ${{ github.ref_name != 'main' }}
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          file: apps/kafka-mapper-microfrontend/Dockerfile
+          tags: jembi/kafka-mapper-consumer-ui:${{ github.ref_name }}
 
       - name: Build and push latest
         if: ${{ github.ref_name == 'main' }}
@@ -40,4 +50,14 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
+          file: apps/kafka-mapper-consumer/Dockerfile
           tags: jembi/kafka-mapper-consumer:latest
+
+      - name: Build and push ui tag
+        if: ${{ github.ref_name == 'main' }}
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          file: apps/kafka-mapper-microfrontend/Dockerfile
+          tags: jembi/kafka-mapper-consumer-ui:latest
