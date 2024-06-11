@@ -8,12 +8,29 @@ import React, {
 import axios from "axios";
 import { Bundle, FhirResource } from "fhir/r4";
 
-export const apiClient = axios.create({
-  withCredentials: true,
-  // TODO: retrieve the base URL from the environment
-  baseURL: "https://localhost:8080/",
-});
+async function initializeApiClient(): Promise<void> {
+  try {
+    const response = await fetch("/config/default.json");
+    const config: Config = await response.json();
+    let hostPath = config.hostPath || "";
+    if (hostPath) {
+      hostPath = "/" + hostPath.replace(/(^\/)|(\/$)/g, "");
+    }
+    // Initialize apiClient with the correct baseURL
+    apiClient = axios.create({
+      withCredentials: true,
+      baseURL: `${config.protocol}://${config.host}:${config.port}${hostPath}`,
+    });
+  } catch (error) {
+    console.error("Error initializing the API client:", error);
+    throw error;
+  }
+}
+// Variable to hold the initialized apiClient
+let apiClient = axios.create();
 
+// Call initializeApiClient to setup apiClient before using it
+const initializationPromise = initializeApiClient().catch(console.error);
 /**
  * Represents a column mapping in the FhirMapperConfigProvider.
  */
@@ -22,6 +39,12 @@ export interface ColumnMapping {
   fhirPath: string;
 }
 
+interface Config {
+  protocol: string;
+  host: string;
+  port: number;
+  hostPath?: string;
+}
 /**
  * Represents an expression used in column mapping.
  */
@@ -189,6 +212,7 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
   // Fetch the initial config from the API using Axios
   const fetchInitialConfig = async () => {
     try {
+      await initializationPromise;
       const response = await apiClient.get<MediatorConfig>(
         "mediators/urn:openhim-mediator:kafka-mapper-consumer"
       );
@@ -330,10 +354,11 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
     setLoading(true);
 
     const newMediatorConfig = {
-      fhirMappings: JSON.stringify(mappingSchema)
-    }
+      fhirMappings: JSON.stringify(mappingSchema),
+    };
     const mediatorUrn = mediatorConfig.urn;
     try {
+      await initializationPromise;
       const response = await apiClient.put(
         `/mediators/${mediatorUrn}/config`,
         newMediatorConfig
