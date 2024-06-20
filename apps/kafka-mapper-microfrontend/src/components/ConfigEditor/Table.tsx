@@ -64,7 +64,7 @@ export function Table({ table }: { table: string }) {
         {expressions.map((item) => {
           return (
             <ExpressionsDropTable
-              key={nanoid()}
+              key={item.columnName + table}
               expression={item}
               table={table}
             />
