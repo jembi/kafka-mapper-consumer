@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Stack,
@@ -48,6 +48,11 @@ export function AddExpressionDialog() {
     }
   }
 
+  useEffect(() => {
+    // Assuming renderPreview uses the expression state internally
+    setPreviewValue(renderPreview().toString());
+  }, [expression]);
+
   return (
     <>
       <Button
@@ -84,7 +89,6 @@ export function AddExpressionDialog() {
                 type="text"
                 onChange={(e) => {
                   setExpression(e.target.value);
-                  setPreviewValue(renderPreview().toString());
                 }}
                 fullWidth
                 required
