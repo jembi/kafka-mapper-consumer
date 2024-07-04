@@ -50,7 +50,12 @@ export function AddExpressionDialog() {
 
   useEffect(() => {
     // Assuming renderPreview uses the expression state internally
-    setPreviewValue(renderPreview().toString());
+    const preview = renderPreview();
+    if (typeof preview === 'string' && preview.startsWith('Error')) {
+      setPreviewValue("Error! Invalid expression.");
+    } else {
+      setPreviewValue(preview.toString());
+    }
   }, [expression]);
 
   return (
