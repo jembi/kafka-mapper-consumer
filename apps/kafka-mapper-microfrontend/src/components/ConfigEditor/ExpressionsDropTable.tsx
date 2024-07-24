@@ -13,7 +13,7 @@ export function ExpressionsDropTable({
 }: ExpressionsDropTableProps) {
   return (
     <ListItem key={expression.columnName + table}>
-      <DraggableChip expression={expression} type="EXPRESSION" />
+      <DraggableChip expression={expression} table={table} type="EXPRESSION" />
     </ListItem>
   );
 }
