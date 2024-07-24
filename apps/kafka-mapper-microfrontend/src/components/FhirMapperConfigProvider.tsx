@@ -106,6 +106,12 @@ interface FhirMapperContextType {
     targetTable: string,
     expression: ColumnMapping
   ) => void;
+  updateMappingSchemaItem: (
+    targetTable: string,
+    previousColumnName: string,
+    expression: ColumnMapping,
+    resourceType: string
+  ) => void;
   removeMappingSchemaItem: (
     targetTable: string,
     expression: ColumnMapping
@@ -132,6 +138,12 @@ const FhirMapperConfigContext = createContext<FhirMapperContextType>({
   addMappingSchemaItem: (
     _targetTable: string,
     _expression: ColumnMapping
+  ) => {},
+  updateMappingSchemaItem: (
+    _targetTable: string,
+    _previousColumnName: string,
+    _expression: ColumnMapping,
+    _resourceType: string
   ) => {},
   removeMappingSchemaItem: (
     _targetTable: string,
@@ -354,6 +366,66 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
     });
   };
 
+  const updateMappingSchemaItem = (
+    targetTable: string,
+    previousColumnName: string,
+    { columnName, fhirPath }: ColumnMapping,
+    resourceType: string
+  ) => {
+    setMappingSchema((prevMappingSchema) => {
+      if (resourceType !== activeFhirResource.resourceType) {
+        window.alert(
+          "The resource type of the expression does not match the active FHIR resource type. Please change the active FHIR resource type to " +
+            resourceType +
+            " to edit this expression."
+        );
+        return prevMappingSchema;
+      }
+
+      const currentMappingIdx = prevMappingSchema.findIndex(
+        (mapping) => mapping.resourceType === activeFhirResource.resourceType
+      );
+
+      if (currentMappingIdx !== -1) {
+        const currentMapping = { ...prevMappingSchema[currentMappingIdx] };
+        const currentTableMappingIdx = currentMapping.tableMappings.findIndex(
+          (tableMapping) => tableMapping.targetTable === targetTable
+        );
+
+        if (currentTableMappingIdx !== -1) {
+          const currentTableMapping = {
+            ...currentMapping.tableMappings[currentTableMappingIdx],
+          };
+          const currentColumnMappingIdx =
+            currentTableMapping.columnMappings.findIndex(
+              (columnMapping) => columnMapping.columnName === previousColumnName
+            );
+
+          if (currentColumnMappingIdx !== -1) {
+            currentTableMapping.columnMappings[
+              currentColumnMappingIdx
+            ].columnName = columnName;
+            currentTableMapping.columnMappings[
+              currentColumnMappingIdx
+            ].fhirPath = fhirPath;
+          }
+
+          currentMapping.tableMappings.splice(
+            currentTableMappingIdx,
+            1,
+            currentTableMapping
+          );
+        }
+
+        return [
+          ...prevMappingSchema.slice(0, currentMappingIdx),
+          currentMapping,
+          ...prevMappingSchema.slice(currentMappingIdx + 1),
+        ];
+      }
+    });
+  };
+
   const removeMappingSchemaItem = (
     targetTable: string,
     { columnName, fhirPath }: ColumnMapping
@@ -424,6 +496,7 @@ const FhirMapperConfigProvider: React.FC<FhirMapperConfigProviderProps> = ({
         value={{
           mappingSchema,
           addMappingSchemaItem,
+          updateMappingSchemaItem,
           removeMappingSchemaItem,
           getMappingsByTable,
           tables,
