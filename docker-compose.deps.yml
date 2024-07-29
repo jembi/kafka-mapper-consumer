@@ -29,7 +29,7 @@ services:
     ports:
       - "8124:8123"
     volumes:
-     - clickhouse_data:/var/lib/clickhouse/
+      - clickhouse_data:/var/lib/clickhouse/
 
   mongo-db:
     container_name: mongo-db
@@ -40,7 +40,7 @@ services:
 
   openhim-core:
     container_name: openhim-core
-    image: jembi/openhim-core:latest
+    image: jembi/openhim-core:v8.4.3
     restart: unless-stopped
     environment:
       mongo_url: "mongodb://mongo-db/openhim-dev"
@@ -53,10 +53,10 @@ services:
 
   openhim-console:
     container_name: openhim-console
-    image: jembi/openhim-console:latest
+    image: jembi/openhim-console:poc-microfrontend
     restart: unless-stopped
     ports:
-      - "9090:80"
+      - "9000:80"
 
 volumes:
   mongo-data:

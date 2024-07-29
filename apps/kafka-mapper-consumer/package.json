@@ -33,6 +33,7 @@
   },
   "scripts": {
     "start": "ts-node src/index.ts",
+    "start:dev": "node -r ts-node/register --env-file=.dev.env src/index.ts",
     "build": "docker build -t jembi/kafka-mapper-consumer .",
     "test": "npm run cucumber",
     "cucumber": "cucumber-js test/features/**/*.feature --no-color --logLevel=error --require test/step-definitions/**/*.ts --require-module ts-node/register --format-options \"{\\\"snippetInterface\\\": \\\"async-await\\\"}\" --format summary --format progress-bar"

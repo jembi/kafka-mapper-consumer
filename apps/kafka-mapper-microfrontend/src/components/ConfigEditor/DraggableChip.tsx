@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useState } from "react";
 import { useDrag } from "react-dnd";
 import Chip from "@mui/material/Chip";
 import { Avatar, Button } from "@mui/material";
@@ -7,14 +7,16 @@ import {
   ColumnMapping,
   useFhirMapperConfig,
 } from "../FhirMapperConfigProvider";
+import { EditExpressionDialog } from "./EditExpressionDialog";
 
 export interface DraggableChipProps {
   expression: ColumnMapping;
   type: string;
+  table?: string;
 }
 
 export const DraggableChip: FC<DraggableChipProps> = memo(
-  function DraggableChip({ expression, type }) {
+  function DraggableChip({ expression, type, table }) {
     const [{ opacity }, drag] = useDrag(
       () => ({
         type: "EXPRESSION",
@@ -27,21 +29,30 @@ export const DraggableChip: FC<DraggableChipProps> = memo(
       [name, type]
     );
 
-    const { removeExpression } = useFhirMapperConfig();
+    const { removeExpression, removeMappingSchemaItem } = useFhirMapperConfig();
 
     return (
       <div ref={drag} style={{ opacity }}>
         <Chip
           avatar={
             <Avatar>
-              <Button variant="contained">
-                <Edit fontSize="small" />
-              </Button>
+              <EditExpressionDialog
+                table={table}
+                prevColumnName={expression.columnName}
+                prevExpression={expression.fhirPath}
+              />
             </Avatar>
           }
           label={expression.columnName}
           color={"primary"}
-          onDelete={() => removeExpression(expression.columnName)}
+          onDelete={() => {
+            if (table) {
+              removeMappingSchemaItem(table, expression);
+              removeExpression("");
+            } else {
+              removeExpression(expression.columnName);
+            }
+          }}
           clickable
         />
       </div>
