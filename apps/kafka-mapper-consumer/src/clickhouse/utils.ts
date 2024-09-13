@@ -3,11 +3,16 @@ import {Table} from '../../src/types'
 
 const CLICKHOUSE_HOST = process.env.CLICKHOUSE_HOST ?? 'localhost'
 const CLICKHOUSE_PORT = parseInt(process.env.CLICKHOUSE_PORT ?? '8124')
+const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD ?? ''
 
 const clickhouse = new ClickHouse({
   url: CLICKHOUSE_HOST,
   port: CLICKHOUSE_PORT,
-  debug: true
+  debug: true,
+  basicAuth: {
+    username: 'default',
+    password: CLICKHOUSE_PASSWORD
+  }
 })
 
 const selectQuery = (table: Table) =>
