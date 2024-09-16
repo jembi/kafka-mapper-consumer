@@ -1,6 +1,6 @@
 {
   "name": "@jembi/kafka-mapper-consumer-ui",
-  "version": "0.1.0-alpha",
+  "version": "v1.1.0",
   "license": "MIT",
   "scripts": {
     "start": "webpack serve",

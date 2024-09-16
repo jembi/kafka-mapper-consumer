@@ -1,6 +1,6 @@
 {
   "name": "kafka-mapper-consumer",
-  "version": "0.0.1",
+  "version": "v1.1.0",
   "license": "MIT",
   "main": "src/index.ts",
   "dependencies": {
